@@ -21,13 +21,23 @@ async function getOrcamentoByStatus(status: StatusOrcamento): Promise<Orcamento[
     return item.filter(i => i.status === status);
 }
 
- async function limparOrcamentos(): Promise<void> {
+async function limparOrcamentos(): Promise<void> {
     try {
         await AsyncStorage.removeItem(KEY);
     } catch (error) {
         throw new Error(`ItemsStorage: clear: ${error}`);
     }
 }
+
+async function remover(id: string): Promise<void> {
+    // Busca todos os itens armazenados
+    const items = await getOrcamento();
+    // Filtra mantendo apenas os itens com ID diferente do alvo
+    const updated = items.filter(item => item.id !== id);
+    // Salva a nova lista atualizada (persistência)
+    await AsyncStorage.setItem(KEY, JSON.stringify(updated));
+}
+
 
 
 async function addItem(orcamento: Orcamento): Promise<void> {
@@ -48,5 +58,6 @@ export const OrcamentoStorage = {
     addItem,
     deleteItem,
     getOrcamentoByStatus,
-    limparOrcamentos
+    limparOrcamentos,
+    remover,
 }

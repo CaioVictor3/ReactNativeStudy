@@ -3,7 +3,7 @@ import { MoreVertical } from 'lucide-react-native';
 import { Orcamento } from '@/types/Orcamento';
 import { OrcamentoIcon } from '@/components/OrcamentoIcon';
 import { styles } from './styles';
-import { Orcamentotorage } from '@/storage/orcamentoStorage';
+import { OrcamentoStorage } from '@/storage/orcamentoStorage';
 
 type Props = {
     orcamento: Orcamento;
@@ -20,29 +20,8 @@ function calcularTotal(orcamento: Orcamento): number {
     return subtotal - desconto;
 }
 
-export function OrcamentoCard({ orcamento }: Props) {
-    
-    async function selecionarOpcao(event: GestureResponderEvent): Promise<void> {
-        // Aqui você pode implementar a lógica para mostrar as opções (Editar, Enviar, Excluir)
-        Alert.alert('Opções', 'Escolha uma ação para este orçamento.', [
-            { text: 'Rascunho', onPress: async () => {
-                // await Orcamentotorage.save({ id: orcamento.id, description: orcamento, status: 'Rascunho' });
-                // Alert.alert('Adicionado', `Adicionado: ${orcamento}`);
-                //     setDescription('');
-            }},
-            { text: 'Enviado', onPress: () => {
-                // Lógica para enviar
-            }},
-            { text: 'Aprovado', onPress: () => {
-                // Lógica para aprovar
-            }},
-            { text: 'Recusado', onPress: () => {
-                // Lógica para recusar
-            }},
-            { text: 'Cancelar', style: 'cancel' },
-        ]);
 
-    }
+export function OrcamentoCard({ orcamento }: Props) {
 
     return (
         <View style={styles.container}>
@@ -59,7 +38,7 @@ export function OrcamentoCard({ orcamento }: Props) {
                 </Text>
 
                 <TouchableOpacity style={styles.right}>
-                    <MoreVertical size={20} color="#333" onPress={selecionarOpcao} />
+                    <MoreVertical size={20} color="#333" onPress={() => removerOrcamento(orcamento.id)} />
                 </TouchableOpacity>
             </View>
         </View>

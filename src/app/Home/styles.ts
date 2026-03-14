@@ -27,12 +27,6 @@ export const styles = StyleSheet.create({
         color: '#888888',
         marginTop: 2,
     },
-    novoButton: {
-        backgroundColor: '#6644eb',
-        paddingHorizontal: 20,
-        paddingVertical: 12,
-        borderRadius: 24,
-    },
     novoButtonText: {
         color: '#ffffff',
         fontWeight: '700',
@@ -100,11 +94,22 @@ export const styles = StyleSheet.create({
         fontSize: 14,
         color: '#222222',
     },
-    formRow: {
+    formContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 16,
+        gap: 12,
+    },
+    actionsRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: 20,
         gap: 12,
-        marginBottom: 16,
-     },
+    },
+    novoButton: {
+        flex: 1,
+        alignItems: 'center',
+        backgroundColor: '#6644eb',
+        paddingHorizontal: 20,
+        paddingVertical: 12,
+        borderRadius: 24,
+    },
 });

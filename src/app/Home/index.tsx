@@ -69,6 +69,19 @@ export default function Home() {
     setTitulo('');
   }
 
+  async function removerOrcamento(orcamentoId: string) {
+      try {
+          // Remove do storage assíncrono utilizando a função que criamos
+          await OrcamentoStorage.remover(orcamentoId);  
+          // Recarrega a lista baseada no filtro atual para refletir a exclusão
+          await itemsByStatus(filtroStatus);
+      } catch (error) {
+          // Exibe feedback visual em caso de falha durante a remoção
+          Alert.alert('Remover', 'Não foi possível remover o item.');
+          console.log(error);
+      }
+  }
+
   function limparOrcamentos() {
     Alert.alert(
       'Confirmação',
@@ -101,7 +114,7 @@ export default function Home() {
         </View>
 
       </View>
-      <View style={styles.formRow}>
+      <View style={styles.formContainer}>
         <TextInput
           style={styles.tituloInput}
           placeholder="Título do orçamento"
@@ -109,15 +122,15 @@ export default function Home() {
           value={titulo}
           onChangeText={setTitulo}
         />
-        <TouchableOpacity style={styles.novoButton}>
-          <Text style={styles.novoButtonText} onPress={handleNovoOrcamento}
-          >+ Novo</Text>
-        </TouchableOpacity>
+        <View style={styles.actionsRow}>
+          <TouchableOpacity style={styles.novoButton} onPress={handleNovoOrcamento}>
+            <Text style={styles.novoButtonText}>+ Novo</Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity style={styles.novoButton}>
-          <Text style={styles.novoButtonText} onPress={limparOrcamentos}
-          >Limpar</Text>
-        </TouchableOpacity>
+          <TouchableOpacity style={styles.novoButton} onPress={limparOrcamentos}>
+            <Text style={styles.novoButtonText}>Limpar</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
 
