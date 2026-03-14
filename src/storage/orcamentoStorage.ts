@@ -21,12 +21,20 @@ async function getOrcamentoByStatus(status: StatusOrcamento): Promise<Orcamento[
     return item.filter(i => i.status === status);
 }
 
+ async function limparOrcamentos(): Promise<void> {
+    try {
+        await AsyncStorage.removeItem(KEY);
+    } catch (error) {
+        throw new Error(`ItemsStorage: clear: ${error}`);
+    }
+}
+
 
 async function addItem(orcamento: Orcamento): Promise<void> {
 
-        const data = await AsyncStorage.getItem(KEY);
-        const updatedOrcamento = data ? [...JSON.parse(data), orcamento] : [orcamento];
-        await AsyncStorage.setItem(KEY, JSON.stringify(updatedOrcamento));
+    const data = await AsyncStorage.getItem(KEY);
+    const updatedOrcamento = data ? [...JSON.parse(data), orcamento] : [orcamento];
+    await AsyncStorage.setItem(KEY, JSON.stringify(updatedOrcamento));
 }
 
 async function deleteItem(id: string): Promise<void> {
@@ -35,9 +43,10 @@ async function deleteItem(id: string): Promise<void> {
     await AsyncStorage.setItem(KEY, JSON.stringify(filtered));
 }
 
-export const Orcamentotorage = {
+export const OrcamentoStorage = {
     getOrcamento,
     addItem,
     deleteItem,
-    getOrcamentoByStatus
+    getOrcamentoByStatus,
+    limparOrcamentos
 }

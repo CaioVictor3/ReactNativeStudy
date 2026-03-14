@@ -1,4 +1,5 @@
 import {
+  Alert,
   FlatList,
   ScrollView,
   Text,
@@ -13,7 +14,7 @@ import { StatusFilter } from '@/types/FilterStatus';
 import { OrcamentoCard } from '@/components/OrcamentoCard';
 import { Filter } from '@/components/Filter';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
-import { Orcamentotorage } from '@/storage/orcamentoStorage';
+import { OrcamentoStorage } from '@/storage/orcamentoStorage';
 import { StatusOrcamento } from '@/types/StatusOrcamento';
 
 const STATUS_ORCAMENTO: StatusOrcamento[] = [StatusOrcamento.RASCUNHO, StatusOrcamento.ENVIADO, StatusOrcamento.APROVADO, StatusOrcamento.RECUSADO, StatusOrcamento.TODOS];
@@ -27,20 +28,20 @@ export default function Home() {
   const quantidadeRascunho = orcamentos.filter(o => o.status === StatusOrcamento.RASCUNHO).length;
 
   useEffect(() => {
-    Orcamentotorage.getOrcamento().then(setOrcamentos);
+    OrcamentoStorage.getOrcamento().then(setOrcamentos);
   }, []);
 
   async function handleFiltroStatus(status: StatusOrcamento) {
     setFiltroStatus(status);
 
-    const todos = await Orcamentotorage.getOrcamento();
+    const todos = await OrcamentoStorage.getOrcamento();
 
     if (status === StatusOrcamento.TODOS) {
       setOrcamentos(todos);
       return;
     }
     else {
-      const orcamentosFiltrados = await Orcamentotorage.getOrcamentoByStatus(status);
+      const orcamentosFiltrados = await OrcamentoStorage.getOrcamentoByStatus(status);
       setOrcamentos(orcamentosFiltrados);
     }
   }
@@ -62,10 +63,31 @@ export default function Home() {
       dataAtualizacao: new Date().toISOString(),
     };
 
-    Orcamentotorage.addItem(novoOrcamento);
+    OrcamentoStorage.addItem(novoOrcamento);
     setOrcamentos(prev => [...prev, novoOrcamento]);
+    Alert.alert('Sucesso', `Orçamento criado com sucesso ${novoOrcamento.titulo}!`);
     setTitulo('');
   }
+
+  function limparOrcamentos() {
+    Alert.alert(
+      'Confirmação',
+      'Tem certeza que deseja limpar todos os orçamentos? Esta ação não pode ser desfeita.',
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Limpar',
+          style: 'destructive',
+          onPress: async () => {
+            await OrcamentoStorage.limparOrcamentos();
+            setOrcamentos([]);
+            Alert.alert('Sucesso', 'Todos os orçamentos foram limpos.');
+          },
+        },
+      ]
+    );
+  }
+
 
   return (
     <View style={styles.safeArea}>
@@ -90,6 +112,11 @@ export default function Home() {
         <TouchableOpacity style={styles.novoButton}>
           <Text style={styles.novoButtonText} onPress={handleNovoOrcamento}
           >+ Novo</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.novoButton}>
+          <Text style={styles.novoButtonText} onPress={limparOrcamentos}
+          >Limpar</Text>
         </TouchableOpacity>
       </View>
 
