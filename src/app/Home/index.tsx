@@ -14,20 +14,36 @@ import { OrcamentoCard } from '@/components/OrcamentoCard';
 import { Filter } from '@/components/Filter';
 import { Search, SlidersHorizontal } from 'lucide-react-native';
 import { Orcamentotorage } from '@/storage/orcamentoStorage';
+import { StatusOrcamento } from '@/types/StatusOrcamento';
 
-const STATUS_FILTERS: StatusFilter[] = ['Todos', 'Rascunho', 'Enviado', 'Aprovado', 'Recusado'];
+const STATUS_ORCAMENTO: StatusOrcamento[] = [StatusOrcamento.RASCUNHO, StatusOrcamento.ENVIADO, StatusOrcamento.APROVADO, StatusOrcamento.RECUSADO, StatusOrcamento.TODOS];
 
 export default function Home() {
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
   const [busca, setBusca] = useState('');
   const [titulo, setTitulo] = useState('');
+  const [filtroStatus, setFiltroStatus] = useState<StatusFilter>();
 
-
-  const quantidadeRascunho = orcamentos.filter(o => o.status === 'Rascunho').length;
+  const quantidadeRascunho = orcamentos.filter(o => o.status === StatusOrcamento.RASCUNHO).length;
 
   useEffect(() => {
     Orcamentotorage.getOrcamento().then(setOrcamentos);
   }, []);
+
+async function handleFiltroStatus(status: StatusOrcamento) {
+  setFiltroStatus(status);
+
+  const todos = await Orcamentotorage.getOrcamento();
+
+  if (status === StatusOrcamento.TODOS) {
+    setOrcamentos(todos);
+    return;
+  }
+  else {
+  const orcamentosFiltrados = await Orcamentotorage.getOrcamentoByStatus(status);
+  setOrcamentos(orcamentosFiltrados);
+  }
+}
 
 
   function handleNovoOrcamento() {
@@ -41,7 +57,7 @@ export default function Home() {
       titulo,
       itens: [],
       percentualDesconto: 0,
-      status: 'Rascunho',
+      status: StatusOrcamento.RASCUNHO,
       dataCriacao: new Date().toISOString(),
       dataAtualizacao: new Date().toISOString(),
     };
@@ -100,11 +116,12 @@ export default function Home() {
         style={styles.filtersScrollView}
         contentContainerStyle={styles.filtersScroll}
       >
-        {STATUS_FILTERS.map(status => (
+        {STATUS_ORCAMENTO.map(status => (
           <Filter
             key={status}
             status={status}
-            isActive={'Todos' === status}
+            isActive={filtroStatus === status}
+            onPress={() => handleFiltroStatus(status)}
           />
         ))}
       </ScrollView>

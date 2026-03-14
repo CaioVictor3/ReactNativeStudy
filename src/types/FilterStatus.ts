@@ -6,3 +6,4 @@ export enum FilterStatus {
 }
 
 export type StatusFilter = StatusOrcamento | 'Todos';
+

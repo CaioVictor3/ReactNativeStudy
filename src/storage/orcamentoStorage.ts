@@ -16,6 +16,11 @@ async function getOrcamento(): Promise<Orcamento[]> {
     }
 }
 
+async function getOrcamentoByStatus(status: StatusOrcamento): Promise<Orcamento[]> {
+    const item = await getOrcamento()
+    return item.filter(i => i.status === status);
+}
+
 
 async function addItem(orcamento: Orcamento): Promise<void> {
 
@@ -34,4 +39,5 @@ export const Orcamentotorage = {
     getOrcamento,
     addItem,
     deleteItem,
+    getOrcamentoByStatus
 }
