@@ -5,6 +5,10 @@ import { Alert } from "react-native";
 
 const KEY = '@compras:orcamentos';
 
+async function saveOrcamentos(items: Orcamento[]): Promise<void> {
+    await AsyncStorage.setItem(KEY, JSON.stringify(items));
+}
+
 async function getOrcamento(): Promise<Orcamento[]> {
     try {
         const data = await AsyncStorage.getItem(KEY);
@@ -29,28 +33,51 @@ async function limparOrcamentos(): Promise<void> {
     }
 }
 
-async function remover(id: string): Promise<void> {
-    // Busca todos os itens armazenados
+async function recusarOrcamento(id: string): Promise<void> {
     const items = await getOrcamento();
-    // Filtra mantendo apenas os itens com ID diferente do alvo
-    const updated = items.filter(item => item.id !== id);
-    // Salva a nova lista atualizada (persistência)
-    await AsyncStorage.setItem(KEY, JSON.stringify(updated));
+    const updated = items.map(item => {
+        if (item.id !== id) {
+            return item;
+        }
+
+        return {
+            ...item,
+            status: StatusOrcamento.RECUSADO,
+            dataAtualizacao: new Date().toISOString(),
+        };
+    });
+
+    await saveOrcamentos(updated);
 }
 
+async function atualizarStatus(id: string, status: StatusOrcamento): Promise<void> {
+    const items = await getOrcamento();
+    const updated = items.map(item => {
+        if (item.id !== id) {
+            return item;
+        }
 
+        return {
+            ...item,
+            status,
+            dataAtualizacao: new Date().toISOString(),
+        };
+    });
+
+    await saveOrcamentos(updated);
+}
 
 async function addItem(orcamento: Orcamento): Promise<void> {
 
     const data = await AsyncStorage.getItem(KEY);
     const updatedOrcamento = data ? [...JSON.parse(data), orcamento] : [orcamento];
-    await AsyncStorage.setItem(KEY, JSON.stringify(updatedOrcamento));
+    await saveOrcamentos(updatedOrcamento);
 }
 
 async function deleteItem(id: string): Promise<void> {
     const data = await getOrcamento();
     const filtered = data.filter(item => item.id !== id)
-    await AsyncStorage.setItem(KEY, JSON.stringify(filtered));
+    await saveOrcamentos(filtered);
 }
 
 export const OrcamentoStorage = {
@@ -59,5 +86,6 @@ export const OrcamentoStorage = {
     deleteItem,
     getOrcamentoByStatus,
     limparOrcamentos,
-    remover,
+    recusarOrcamento,
+    atualizarStatus,
 }

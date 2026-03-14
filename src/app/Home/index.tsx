@@ -69,17 +69,16 @@ export default function Home() {
     setTitulo('');
   }
 
-  async function removerOrcamento(orcamentoId: string) {
-      try {
-          // Remove do storage assíncrono utilizando a função que criamos
-          await OrcamentoStorage.remover(orcamentoId);  
-          // Recarrega a lista baseada no filtro atual para refletir a exclusão
-          await itemsByStatus(filtroStatus);
-      } catch (error) {
-          // Exibe feedback visual em caso de falha durante a remoção
-          Alert.alert('Remover', 'Não foi possível remover o item.');
-          console.log(error);
-      }
+  async function recusarOrcamento(orcamentoId: string) {
+    try {
+      await OrcamentoStorage.recusarOrcamento(orcamentoId);
+
+      const statusAtual = (filtroStatus ?? StatusOrcamento.TODOS) as StatusOrcamento;
+      await handleFiltroStatus(statusAtual);
+    } catch (error) {
+      Alert.alert('Recusar', 'Não foi possível atualizar o status do orçamento.');
+      console.log(error);
+    }
   }
 
   function limparOrcamentos() {
@@ -176,6 +175,7 @@ export default function Home() {
         renderItem={({ item }) => (
           <OrcamentoCard
             orcamento={item}
+            onReject={recusarOrcamento}
           />
         )}
       />

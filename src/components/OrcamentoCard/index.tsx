@@ -1,12 +1,12 @@
-import { Alert, GestureResponderEvent, Text, TouchableOpacity, View } from 'react-native';
-import { MoreVertical } from 'lucide-react-native';
+import { Alert, Text, TouchableOpacity, View } from 'react-native';
+import { MoreVertical, Trash2 } from 'lucide-react-native';
 import { Orcamento } from '@/types/Orcamento';
 import { OrcamentoIcon } from '@/components/OrcamentoIcon';
 import { styles } from './styles';
-import { OrcamentoStorage } from '@/storage/orcamentoStorage';
 
 type Props = {
     orcamento: Orcamento;
+    onReject: (orcamentoId: string) => Promise<void>;
 };
 
 function calcularTotal(orcamento: Orcamento): number {
@@ -21,7 +21,28 @@ function calcularTotal(orcamento: Orcamento): number {
 }
 
 
-export function OrcamentoCard({ orcamento }: Props) {
+export function OrcamentoCard({ orcamento, onReject }: Props) {
+    function recusarOrcamento() {
+        Alert.alert(
+            'Recusar orçamento',
+            'Deseja alterar o status deste orçamento para Recusado?',
+            [
+                { text: 'Cancelar', style: 'cancel' },
+                {
+                    text: 'Recusar',
+                    style: 'destructive',
+                    onPress: async () => {
+                        try {
+                            await onReject(orcamento.id);
+                        } catch (error) {
+                            Alert.alert('Recusar', 'Não foi possível atualizar o status.');
+                            console.log(error);
+                        }
+                    },
+                },
+            ]
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -37,14 +58,11 @@ export function OrcamentoCard({ orcamento }: Props) {
                     <Text style={styles.valor}>{calcularTotal(orcamento).toFixed(2)}</Text>
                 </Text>
 
-                <TouchableOpacity style={styles.right}>
-                    <MoreVertical size={20} color="#333" onPress={() => removerOrcamento(orcamento.id)} />
+                <TouchableOpacity style={styles.menuButton} onPress={recusarOrcamento}>
+                    <Trash2 size={20} color="black" />
                 </TouchableOpacity>
             </View>
         </View>
     );
-}
-function setDescription(arg0: string) {
-    throw new Error('Function not implemented.');
 }
 
