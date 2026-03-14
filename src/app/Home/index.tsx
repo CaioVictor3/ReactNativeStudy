@@ -30,20 +30,20 @@ export default function Home() {
     Orcamentotorage.getOrcamento().then(setOrcamentos);
   }, []);
 
-async function handleFiltroStatus(status: StatusOrcamento) {
-  setFiltroStatus(status);
+  async function handleFiltroStatus(status: StatusOrcamento) {
+    setFiltroStatus(status);
 
-  const todos = await Orcamentotorage.getOrcamento();
+    const todos = await Orcamentotorage.getOrcamento();
 
-  if (status === StatusOrcamento.TODOS) {
-    setOrcamentos(todos);
-    return;
+    if (status === StatusOrcamento.TODOS) {
+      setOrcamentos(todos);
+      return;
+    }
+    else {
+      const orcamentosFiltrados = await Orcamentotorage.getOrcamentoByStatus(status);
+      setOrcamentos(orcamentosFiltrados);
+    }
   }
-  else {
-  const orcamentosFiltrados = await Orcamentotorage.getOrcamentoByStatus(status);
-  setOrcamentos(orcamentosFiltrados);
-  }
-}
 
 
   function handleNovoOrcamento() {
@@ -62,7 +62,7 @@ async function handleFiltroStatus(status: StatusOrcamento) {
       dataAtualizacao: new Date().toISOString(),
     };
 
-     Orcamentotorage.addItem(novoOrcamento);
+    Orcamentotorage.addItem(novoOrcamento);
     setOrcamentos(prev => [...prev, novoOrcamento]);
     setTitulo('');
   }
