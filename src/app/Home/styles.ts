@@ -1,5 +1,6 @@
 
 import { StyleSheet } from 'react-native';
+import { NovoOrcamento } from '../NovoOrcamento';
 
 export const styles = StyleSheet.create({
     safeArea: {
@@ -27,10 +28,36 @@ export const styles = StyleSheet.create({
         color: '#888888',
         marginTop: 2,
     },
+    headerActions: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    novoButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+        backgroundColor: '#6644eb',
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 24,
+    },
     novoButtonText: {
         color: '#ffffff',
         fontWeight: '700',
-        fontSize: 15,
+        fontSize: 14,
+    },
+    limparButton: {
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 24,
+        borderWidth: 1,
+        borderColor: '#d0d2d8',
+    },
+    limparButtonText: {
+        color: '#555555',
+        fontWeight: '600',
+        fontSize: 14,
     },
 
     // Search
@@ -104,7 +131,7 @@ export const styles = StyleSheet.create({
         alignItems: 'center',
         gap: 12,
     },
-    novoButton: {
+    novoOrcamento: {
         flex: 1,
         alignItems: 'center',
         backgroundColor: '#6644eb',

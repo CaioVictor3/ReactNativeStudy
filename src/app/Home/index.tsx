@@ -1,6 +1,7 @@
 import {
   Alert,
   FlatList,
+  Modal,
   ScrollView,
   Text,
   TextInput,
@@ -13,16 +14,17 @@ import { Orcamento } from '@/types/Orcamento';
 import { StatusFilter } from '@/types/FilterStatus';
 import { OrcamentoCard } from '@/components/OrcamentoCard';
 import { Filter } from '@/components/Filter';
-import { Search, SlidersHorizontal } from 'lucide-react-native';
+import { Plus, Search, SlidersHorizontal } from 'lucide-react-native';
 import { OrcamentoStorage } from '@/storage/orcamentoStorage';
 import { StatusOrcamento } from '@/types/StatusOrcamento';
+import { NovoOrcamento } from '@/app/NovoOrcamento';
 
 const STATUS_ORCAMENTO: StatusOrcamento[] = [StatusOrcamento.RASCUNHO, StatusOrcamento.ENVIADO, StatusOrcamento.APROVADO, StatusOrcamento.RECUSADO, StatusOrcamento.TODOS];
 
 export default function Home() {
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
   const [busca, setBusca] = useState('');
-  const [titulo, setTitulo] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState<StatusFilter>();
 
   const quantidadeRascunho = orcamentos.filter(o => o.status === StatusOrcamento.RASCUNHO).length;
@@ -47,26 +49,16 @@ export default function Home() {
   }
 
 
-  function handleNovoOrcamento() {
-    if (!titulo.trim()) {
-      return;
+  async function handleSalvarOrcamento(orcamento: Orcamento) {
+    try {
+      await OrcamentoStorage.addItem(orcamento);
+      setOrcamentos(prev => [...prev, orcamento]);
+      setModalVisible(false);
+      Alert.alert('Sucesso', `Orçamento "${orcamento.titulo}" criado com sucesso!`);
+    } catch (error) {
+      Alert.alert('Erro', 'Não foi possível salvar o orçamento.');
+      console.log(error);
     }
-
-    const novoOrcamento: Orcamento = {
-      id: Date.now().toString(),
-      cliente: '',
-      titulo,
-      itens: [],
-      percentualDesconto: 0,
-      status: StatusOrcamento.RASCUNHO,
-      dataCriacao: new Date().toISOString(),
-      dataAtualizacao: new Date().toISOString(),
-    };
-
-    OrcamentoStorage.addItem(novoOrcamento);
-    setOrcamentos(prev => [...prev, novoOrcamento]);
-    Alert.alert('Sucesso', `Orçamento criado com sucesso ${novoOrcamento.titulo}!`);
-    setTitulo('');
   }
 
   async function recusarOrcamento(orcamentoId: string) {
@@ -112,24 +104,16 @@ export default function Home() {
           </Text>
         </View>
 
-      </View>
-      <View style={styles.formContainer}>
-        <TextInput
-          style={styles.tituloInput}
-          placeholder="Título do orçamento"
-          placeholderTextColor="#aaaaaa"
-          value={titulo}
-          onChangeText={setTitulo}
-        />
-        <View style={styles.actionsRow}>
-          <TouchableOpacity style={styles.novoButton} onPress={handleNovoOrcamento}>
-            <Text style={styles.novoButtonText}>+ Novo</Text>
+        <View style={styles.headerActions}>
+          <TouchableOpacity style={styles.novoButton} onPress={() => setModalVisible(true)}>
+            <Plus size={18} color="#ffffff" />
+            <Text style={styles.novoButtonText}>Novo</Text>
           </TouchableOpacity>
-
-          <TouchableOpacity style={styles.novoButton} onPress={limparOrcamentos}>
-            <Text style={styles.novoButtonText}>Limpar</Text>
+          <TouchableOpacity style={styles.limparButton} onPress={limparOrcamentos}>
+            <Text style={styles.limparButtonText}>Limpar</Text>
           </TouchableOpacity>
         </View>
+
       </View>
 
 
@@ -179,6 +163,16 @@ export default function Home() {
           />
         )}
       />
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <NovoOrcamento
+          onSave={handleSalvarOrcamento}
+          onClose={() => setModalVisible(false)}
+        />
+      </Modal>
     </View>
   );
 }
