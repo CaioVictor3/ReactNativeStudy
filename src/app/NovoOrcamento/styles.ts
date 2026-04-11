@@ -179,4 +179,121 @@ export const styles = StyleSheet.create({
   bottomSpacing: {
     height: 32,
   },
+
+  // Botão "Adicionar serviço"
+  addServicoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1.5,
+    borderColor: '#6644eb',
+    borderStyle: 'dashed',
+    borderRadius: 10,
+    paddingVertical: 12,
+    gap: 6,
+    marginBottom: 16,
+    backgroundColor: '#faf9ff',
+  },
+  addServicoText: {
+    color: '#6644eb',
+    fontWeight: '600',
+    fontSize: 14,
+  },
+
+  // Modal de serviço
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.45)',
+    justifyContent: 'flex-end',
+  },
+  modalContainer: {
+    backgroundColor: '#ffffff',
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    padding: 24,
+    paddingBottom: 40,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+  },
+  modalInput: {
+    marginBottom: 12,
+  },
+  stepperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginVertical: 8,
+  },
+  stepperLabel: {
+    fontSize: 15,
+    color: '#444444',
+    fontWeight: '500',
+  },
+  stepper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 16,
+  },
+  stepperButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: '#dddddd',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f5f5f5',
+  },
+  stepperButtonText: {
+    fontSize: 20,
+    color: '#333333',
+    lineHeight: 24,
+  },
+  stepperValue: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#1a1a1a',
+    minWidth: 24,
+    textAlign: 'center',
+  },
+  modalActions: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 20,
+    alignItems: 'center',
+  },
+  modalTrashButton: {
+    width: 46,
+    height: 46,
+    borderRadius: 23,
+    borderWidth: 1,
+    borderColor: '#ffd5d5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff5f5',
+  },
+  modalSaveButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#6644eb',
+    borderRadius: 28,
+    height: 46,
+    gap: 8,
+  },
+  modalSaveText: {
+    color: '#ffffff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
 });

@@ -7,6 +7,7 @@ import { styles } from './styles';
 type Props = {
     orcamento: Orcamento;
     onReject: (orcamentoId: string) => Promise<void>;
+    onPress: () => void;
 };
 
 function calcularTotal(orcamento: Orcamento): number {
@@ -21,7 +22,7 @@ function calcularTotal(orcamento: Orcamento): number {
 }
 
 
-export function OrcamentoCard({ orcamento, onReject }: Props) {
+export function OrcamentoCard({ orcamento, onReject, onPress }: Props) {
     function recusarOrcamento() {
         Alert.alert(
             'Recusar orçamento',
@@ -45,24 +46,26 @@ export function OrcamentoCard({ orcamento, onReject }: Props) {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.left}>
-                <Text style={styles.titulo}>{orcamento.titulo}</Text>
-                <Text style={styles.cliente}>{orcamento.cliente}</Text>
-            </View>
+        <TouchableOpacity onPress={onPress}>
+            <View style={styles.container}>
+                <View style={styles.left}>
+                    <Text style={styles.titulo}>{orcamento.titulo}</Text>
+                    <Text style={styles.cliente}>{orcamento.cliente}</Text>
+                </View>
 
-            <View style={styles.right}>
-                <OrcamentoIcon status={orcamento.status} />
-                <Text>
-                    <Text style={styles.valorCifrao}>R$ </Text>
-                    <Text style={styles.valor}>{calcularTotal(orcamento).toFixed(2)}</Text>
-                </Text>
+                <View style={styles.right}>
+                    <OrcamentoIcon status={orcamento.status} />
+                    <Text>
+                        <Text style={styles.valorCifrao}>R$ </Text>
+                        <Text style={styles.valor}>{calcularTotal(orcamento).toFixed(2)}</Text>
+                    </Text>
 
-                <TouchableOpacity style={styles.menuButton} onPress={recusarOrcamento}>
-                    <Trash2 size={20} color="black" />
-                </TouchableOpacity>
+                    <TouchableOpacity style={styles.menuButton} onPress={recusarOrcamento}>
+                        <Trash2 size={20} color="black" />
+                    </TouchableOpacity>
+                </View>
             </View>
-        </View>
+        </TouchableOpacity>
     );
 }
 

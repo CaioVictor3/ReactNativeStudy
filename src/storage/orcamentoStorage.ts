@@ -80,10 +80,21 @@ async function deleteItem(id: string): Promise<void> {
     await saveOrcamentos(filtered);
 }
 
+async function updateItem(orcamento: Orcamento): Promise<void> {
+    const items = await getOrcamento();
+    const updated = items.map(item =>
+        item.id === orcamento.id
+            ? { ...orcamento, dataAtualizacao: new Date().toISOString() }
+            : item
+    );
+    await saveOrcamentos(updated);
+}
+
 export const OrcamentoStorage = {
     getOrcamento,
     addItem,
     deleteItem,
+    updateItem,
     getOrcamentoByStatus,
     limparOrcamentos,
     recusarOrcamento,

@@ -14,18 +14,29 @@ import { Orcamento } from '@/types/Orcamento';
 import { StatusFilter } from '@/types/FilterStatus';
 import { OrcamentoCard } from '@/components/OrcamentoCard';
 import { Filter } from '@/components/Filter';
-import { Plus, Search, SlidersHorizontal } from 'lucide-react-native';
+import { Check, Plus, Search, SlidersHorizontal, X } from 'lucide-react-native';
 import { OrcamentoStorage } from '@/storage/orcamentoStorage';
 import { StatusOrcamento } from '@/types/StatusOrcamento';
 import { NovoOrcamento } from '@/app/NovoOrcamento';
+import VisualizarOrcamento from '../VisualizarOrcamento';
+import { OrcamentoIcon } from '@/components/OrcamentoIcon';
 
 const STATUS_ORCAMENTO: StatusOrcamento[] = [StatusOrcamento.RASCUNHO, StatusOrcamento.ENVIADO, StatusOrcamento.APROVADO, StatusOrcamento.RECUSADO, StatusOrcamento.TODOS];
+const STATUS_FILTRO: StatusOrcamento[] = [StatusOrcamento.RASCUNHO, StatusOrcamento.ENVIADO, StatusOrcamento.APROVADO, StatusOrcamento.RECUSADO];
+type Ordenacao = 'recente' | 'antigo' | 'maior' | 'menor';
 
 export default function Home() {
   const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
   const [busca, setBusca] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalOrcamento, setModalOrcamento] = useState<Orcamento | null>(null);
+  const [modalOrcamentoVisible, setModalOrcamentoVisible] = useState(false);
   const [filtroStatus, setFiltroStatus] = useState<StatusFilter>();
+
+  // Filtro avançado
+  const [filtroModalVisible, setFiltroModalVisible] = useState(false);
+  const [filtroStatusTemp, setFiltroStatusTemp] = useState<StatusOrcamento[]>([]);
+  const [filtroOrdenacao, setFiltroOrdenacao] = useState<Ordenacao>('recente');
 
   const quantidadeRascunho = orcamentos.filter(o => o.status === StatusOrcamento.RASCUNHO).length;
 
@@ -47,7 +58,6 @@ export default function Home() {
       setOrcamentos(orcamentosFiltrados);
     }
   }
-
 
   async function handleSalvarOrcamento(orcamento: Orcamento) {
     try {
@@ -92,6 +102,54 @@ export default function Home() {
     );
   }
 
+  function toggleStatusFiltro(status: StatusOrcamento) {
+    setFiltroStatusTemp(prev =>
+      prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]
+    );
+  }
+
+  async function handleAplicarFiltro() {
+    const todos = await OrcamentoStorage.getOrcamento();
+
+    let resultado = filtroStatusTemp.length > 0
+      ? todos.filter(o => filtroStatusTemp.includes(o.status))
+      : todos;
+
+    const getTotal = (o: Orcamento) => {
+      const sub = o.itens.reduce((acc, it) => acc + it.precoUnitario * it.quantidade, 0);
+      return sub - (o.percentualDesconto ? sub * o.percentualDesconto / 100 : 0);
+    };
+
+    switch (filtroOrdenacao) {
+      case 'antigo':
+        resultado = [...resultado].sort((a, b) => a.dataCriacao.localeCompare(b.dataCriacao));
+        break;
+      case 'maior':
+        resultado = [...resultado].sort((a, b) => getTotal(b) - getTotal(a));
+        break;
+      case 'menor':
+        resultado = [...resultado].sort((a, b) => getTotal(a) - getTotal(b));
+        break;
+      case 'recente':
+      default:
+        resultado = [...resultado].sort((a, b) => b.dataCriacao.localeCompare(a.dataCriacao));
+    }
+
+    setOrcamentos(resultado);
+    setFiltroModalVisible(false);
+  }
+
+  function handleResetarFiltros() {
+    setFiltroStatusTemp([]);
+    setFiltroOrdenacao('recente');
+  }
+
+  const ORDENACOES: { key: Ordenacao; label: string }[] = [
+    { key: 'recente', label: 'Mais recente' },
+    { key: 'antigo', label: 'Mais antigo' },
+    { key: 'maior', label: 'Maior valor' },
+    { key: 'menor', label: 'Menor valor' },
+  ];
 
   return (
     <View style={styles.safeArea}>
@@ -116,7 +174,6 @@ export default function Home() {
 
       </View>
 
-
       <View style={styles.searchRow}>
         <View style={styles.searchContainer}>
           <Search size={18} color="#888888" />
@@ -128,7 +185,7 @@ export default function Home() {
             onChangeText={setBusca}
           />
         </View>
-        <TouchableOpacity style={styles.sortButton}>
+        <TouchableOpacity style={styles.sortButton} onPress={() => setFiltroModalVisible(true)}>
           <SlidersHorizontal size={20} color="#444444" />
         </TouchableOpacity>
       </View>
@@ -160,9 +217,15 @@ export default function Home() {
           <OrcamentoCard
             orcamento={item}
             onReject={recusarOrcamento}
+            onPress={() => {
+              setModalOrcamento(item);
+              setModalOrcamentoVisible(true);
+            }}
           />
         )}
       />
+
+      {/* Modal novo orçamento */}
       <Modal
         visible={modalVisible}
         animationType="slide"
@@ -173,6 +236,84 @@ export default function Home() {
           onClose={() => setModalVisible(false)}
         />
       </Modal>
+
+      {/* Modal visualizar orçamento */}
+      <Modal
+        visible={modalOrcamentoVisible}
+        animationType="slide"
+        onRequestClose={() => setModalOrcamentoVisible(false)}
+      >
+        <VisualizarOrcamento
+          item={modalOrcamento!}
+          onClose={() => setModalOrcamentoVisible(false)}
+          onDelete={() => {
+            setOrcamentos(prev => prev.filter(o => o.id !== modalOrcamento?.id));
+            setModalOrcamentoVisible(false);
+          }}
+          onUpdate={(updated) => {
+            setOrcamentos(prev => prev.map(o => o.id === updated.id ? updated : o));
+            setModalOrcamento(updated);
+          }}
+        />
+      </Modal>
+
+      {/* Modal filtrar e ordenar */}
+      <Modal
+        visible={filtroModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setFiltroModalVisible(false)}
+      >
+        <View style={styles.filtroOverlay}>
+          <View style={styles.filtroContainer}>
+            <View style={styles.filtroHeader}>
+              <Text style={styles.filtroTitle}>Filtrar e ordenar</Text>
+              <TouchableOpacity onPress={() => setFiltroModalVisible(false)}>
+                <X size={22} color="#444444" />
+              </TouchableOpacity>
+            </View>
+
+            <Text style={styles.filtroSectionLabel}>Status</Text>
+            {STATUS_FILTRO.map(status => (
+              <TouchableOpacity
+                key={status}
+                style={styles.filtroCheckRow}
+                onPress={() => toggleStatusFiltro(status)}
+              >
+                <View style={[styles.checkbox, filtroStatusTemp.includes(status) && styles.checkboxActive]}>
+                  {filtroStatusTemp.includes(status) && <Check size={12} color="#ffffff" />}
+                </View>
+                <OrcamentoIcon status={status} />
+              </TouchableOpacity>
+            ))}
+
+            <Text style={[styles.filtroSectionLabel, { marginTop: 20 }]}>Ordenação</Text>
+            {ORDENACOES.map(({ key, label }) => (
+              <TouchableOpacity
+                key={key}
+                style={styles.filtroRadioRow}
+                onPress={() => setFiltroOrdenacao(key)}
+              >
+                <View style={[styles.radio, filtroOrdenacao === key && styles.radioActive]}>
+                  {filtroOrdenacao === key && <View style={styles.radioInner} />}
+                </View>
+                <Text style={styles.filtroRadioLabel}>{label}</Text>
+              </TouchableOpacity>
+            ))}
+
+            <View style={styles.filtroActions}>
+              <TouchableOpacity style={styles.resetarButton} onPress={handleResetarFiltros}>
+                <Text style={styles.resetarText}>Resetar filtros</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.aplicarButton} onPress={handleAplicarFiltro}>
+                <Check size={16} color="#ffffff" />
+                <Text style={styles.aplicarText}>Aplicar</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 }
