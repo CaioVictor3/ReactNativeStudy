@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import { Alert } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft, PencilLine, Trash2 } from 'lucide-react-native';
@@ -8,6 +7,7 @@ import { AppRoutes } from '@/routes';
 import { Refeicao } from '@/types/Refeicao';
 import { RefeicaoStorage } from '@/storage/refeicaoStorage';
 import { Button } from '@/components/Button';
+import { ConfirmModal } from '@/components/ConfirmModal';
 import { THEME } from '@/theme';
 import {
   Container,
@@ -31,6 +31,7 @@ export default function DetalhesRefeicao() {
   const { refeicaoId } = route.params;
 
   const [refeicao, setRefeicao] = useState<Refeicao | null>(null);
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
   useFocusEffect(
     useCallback(() => {
@@ -43,21 +44,13 @@ export default function DetalhesRefeicao() {
   }
 
   function handleExcluir() {
-    Alert.alert(
-      'Excluir refeição',
-      'Deseja excluir esta refeição? Esta ação não pode ser desfeita.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Excluir',
-          style: 'destructive',
-          onPress: async () => {
-            await RefeicaoStorage.remove(refeicaoId);
-            navigation.navigate('home');
-          },
-        },
-      ]
-    );
+    setDeleteModalVisible(true);
+  }
+
+  async function confirmarExclusao() {
+    setDeleteModalVisible(false);
+    await RefeicaoStorage.remove(refeicaoId);
+    navigation.navigate('home');
   }
 
   if (!refeicao) return null;
@@ -107,6 +100,15 @@ export default function DetalhesRefeicao() {
           />
         </ButtonsArea>
       </Content>
+
+      <ConfirmModal
+        visible={deleteModalVisible}
+        title="Excluir refeição"
+        message="Deseja excluir esta refeição? Esta ação não pode ser desfeita."
+        confirmLabel="Excluir"
+        onConfirm={confirmarExclusao}
+        onCancel={() => setDeleteModalVisible(false)}
+      />
     </Container>
   );
 }
