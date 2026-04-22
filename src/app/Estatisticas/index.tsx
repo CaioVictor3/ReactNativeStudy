@@ -108,11 +108,11 @@ export default function Estatisticas() {
           </StatCard>
 
           <CardRow>
-            <StatCard $color="green" $half>
+            <StatCard $color="green" style={{ flex: 1 }}>
               <StatNumber>{stats.dentro}</StatNumber>
-              <StatLabel>refeições{'\n'}dentro da dieta</StatLabel>
+              <StatLabel>refeições{' '}dentro da dieta</StatLabel>
             </StatCard>
-            <StatCard $color="red" $half>
+            <StatCard $color="red" style={{ flex: 1 }}>
               <StatNumber>{stats.fora}</StatNumber>
               <StatLabel>refeições{'\n'}fora da dieta</StatLabel>
             </StatCard>

@@ -3,7 +3,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { THEME } from '@/theme';
 
 type P = { $isPositivo: boolean };
-type CardProps = { $color?: 'green' | 'red'; $half?: boolean };
+type CardProps = { $color?: 'green' | 'red' };
 
 export const Container = styled(SafeAreaView)<P>`
   flex: 1;
@@ -50,7 +50,7 @@ export const CardRow = styled.View`
 `;
 
 export const StatCard = styled.View<CardProps>`
-  flex: ${(p: CardProps) => (p.$half ? 1 : 0)};
+  align-self: stretch;
   background-color: ${(p: CardProps) => {
     if (p.$color === 'green') return THEME.COLORS.GREEN_LIGHT;
     if (p.$color === 'red') return THEME.COLORS.RED_LIGHT;

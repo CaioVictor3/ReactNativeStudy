@@ -30,6 +30,19 @@ function generateId(): string {
   return Date.now().toString(36) + Math.random().toString(36).substring(2);
 }
 
+function maskData(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 8);
+  if (digits.length <= 2) return digits;
+  if (digits.length <= 4) return `${digits.slice(0, 2)}/${digits.slice(2)}`;
+  return `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+}
+
+function maskHora(value: string): string {
+  const digits = value.replace(/\D/g, '').slice(0, 4);
+  if (digits.length <= 2) return digits;
+  return `${digits.slice(0, 2)}:${digits.slice(2)}`;
+}
+
 export default function NovaRefeicao() {
   const navigation = useNavigation<NativeStackNavigationProp<AppRoutes>>();
   const route = useRoute<RouteParams>();
@@ -117,17 +130,19 @@ export default function NovaRefeicao() {
             <Input
               label="Data"
               value={data}
-              onChangeText={setData}
+              onChangeText={v => setData(maskData(v))}
               placeholder="DD/MM/AAAA"
               keyboardType="numeric"
+              maxLength={10}
               containerStyle={{ flex: 1, marginRight: 20 }}
             />
             <Input
               label="Hora"
               value={hora}
-              onChangeText={setHora}
+              onChangeText={v => setHora(maskHora(v))}
               placeholder="HH:MM"
               keyboardType="numeric"
+              maxLength={5}
               containerStyle={{ flex: 1 }}
             />
           </Row>
