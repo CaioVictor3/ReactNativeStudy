@@ -1,319 +1,125 @@
-import {
-  Alert,
-  FlatList,
-  Modal,
-  ScrollView,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { styles } from './styles';
-import { useEffect, useState } from 'react';
-import { Orcamento } from '@/types/Orcamento';
-import { StatusFilter } from '@/types/FilterStatus';
-import { OrcamentoCard } from '@/components/OrcamentoCard';
-import { Filter } from '@/components/Filter';
-import { Check, Plus, Search, SlidersHorizontal, X } from 'lucide-react-native';
-import { OrcamentoStorage } from '@/storage/orcamentoStorage';
-import { StatusOrcamento } from '@/types/StatusOrcamento';
-import { NovoOrcamento } from '@/app/NovoOrcamento';
-import VisualizarOrcamento from '../VisualizarOrcamento';
-import { OrcamentoIcon } from '@/components/OrcamentoIcon';
+import { useCallback, useState } from 'react';
+import { SectionList } from 'react-native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { Plus, ArrowUpRight } from 'lucide-react-native';
 
-const STATUS_ORCAMENTO: StatusOrcamento[] = [StatusOrcamento.RASCUNHO, StatusOrcamento.ENVIADO, StatusOrcamento.APROVADO, StatusOrcamento.RECUSADO, StatusOrcamento.TODOS];
-const STATUS_FILTRO: StatusOrcamento[] = [StatusOrcamento.RASCUNHO, StatusOrcamento.ENVIADO, StatusOrcamento.APROVADO, StatusOrcamento.RECUSADO];
-type Ordenacao = 'recente' | 'antigo' | 'maior' | 'menor';
+import { AppRoutes } from '@/routes';
+import { Refeicao } from '@/types/Refeicao';
+import { RefeicaoStorage } from '@/storage/refeicaoStorage';
+import { RefeicaoCard } from '@/components/RefeicaoCard';
+import { THEME } from '@/theme';
+import {
+  Container,
+  Header,
+  HeaderLogo,
+  UserAvatar,
+  PercentageCard,
+  PercentageArrow,
+  PercentageNumber,
+  PercentageLabel,
+  ListContainer,
+  AddButton,
+  AddButtonLabel,
+  SectionTitle,
+  EmptyText,
+} from './styles';
+
+type Section = { title: string; data: Refeicao[] };
+
+function calcularPercentual(refeicoes: Refeicao[]): number {
+  if (refeicoes.length === 0) return 0;
+  const dentro = refeicoes.filter(r => r.dentroODieta).length;
+  return Math.round((dentro / refeicoes.length) * 10000) / 100;
+}
+
+function parseDateHour(data: string, hora: string): Date {
+  const [d, m, y] = data.split('/').map(Number);
+  const [h, min] = hora.split(':').map(Number);
+  return new Date(y, m - 1, d, h, min);
+}
+
+function agruparPorData(refeicoes: Refeicao[]): Section[] {
+  const sorted = [...refeicoes].sort(
+    (a, b) =>
+      parseDateHour(b.data, b.hora).getTime() -
+      parseDateHour(a.data, a.hora).getTime()
+  );
+
+  const mapa: Record<string, Refeicao[]> = {};
+  for (const r of sorted) {
+    if (!mapa[r.data]) mapa[r.data] = [];
+    mapa[r.data].push(r);
+  }
+
+  return Object.entries(mapa).map(([title, data]) => ({ title, data }));
+}
 
 export default function Home() {
-  const [orcamentos, setOrcamentos] = useState<Orcamento[]>([]);
-  const [busca, setBusca] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalOrcamento, setModalOrcamento] = useState<Orcamento | null>(null);
-  const [modalOrcamentoVisible, setModalOrcamentoVisible] = useState(false);
-  const [filtroStatus, setFiltroStatus] = useState<StatusFilter>();
+  const [refeicoes, setRefeicoes] = useState<Refeicao[]>([]);
+  const navigation = useNavigation<NativeStackNavigationProp<AppRoutes>>();
 
-  // Filtro avançado
-  const [filtroModalVisible, setFiltroModalVisible] = useState(false);
-  const [filtroStatusTemp, setFiltroStatusTemp] = useState<StatusOrcamento[]>([]);
-  const [filtroOrdenacao, setFiltroOrdenacao] = useState<Ordenacao>('recente');
+  useFocusEffect(
+    useCallback(() => {
+      RefeicaoStorage.getAll().then(setRefeicoes);
+    }, [])
+  );
 
-  const quantidadeRascunho = orcamentos.filter(o => o.status === StatusOrcamento.RASCUNHO).length;
-
-  useEffect(() => {
-    OrcamentoStorage.getOrcamento().then(setOrcamentos);
-  }, []);
-
-  async function handleFiltroStatus(status: StatusOrcamento) {
-    setFiltroStatus(status);
-
-    const todos = await OrcamentoStorage.getOrcamento();
-
-    if (status === StatusOrcamento.TODOS) {
-      setOrcamentos(todos);
-      return;
-    }
-    else {
-      const orcamentosFiltrados = await OrcamentoStorage.getOrcamentoByStatus(status);
-      setOrcamentos(orcamentosFiltrados);
-    }
-  }
-
-  async function handleSalvarOrcamento(orcamento: Orcamento) {
-    try {
-      await OrcamentoStorage.addItem(orcamento);
-      setOrcamentos(prev => [...prev, orcamento]);
-      setModalVisible(false);
-      Alert.alert('Sucesso', `Orçamento "${orcamento.titulo}" criado com sucesso!`);
-    } catch (error) {
-      Alert.alert('Erro', 'Não foi possível salvar o orçamento.');
-      console.log(error);
-    }
-  }
-
-  async function recusarOrcamento(orcamentoId: string) {
-    try {
-      await OrcamentoStorage.recusarOrcamento(orcamentoId);
-
-      const statusAtual = (filtroStatus ?? StatusOrcamento.TODOS) as StatusOrcamento;
-      await handleFiltroStatus(statusAtual);
-    } catch (error) {
-      Alert.alert('Recusar', 'Não foi possível atualizar o status do orçamento.');
-      console.log(error);
-    }
-  }
-
-  function limparOrcamentos() {
-    Alert.alert(
-      'Confirmação',
-      'Tem certeza que deseja limpar todos os orçamentos? Esta ação não pode ser desfeita.',
-      [
-        { text: 'Cancelar', style: 'cancel' },
-        {
-          text: 'Limpar',
-          style: 'destructive',
-          onPress: async () => {
-            await OrcamentoStorage.limparOrcamentos();
-            setOrcamentos([]);
-            Alert.alert('Sucesso', 'Todos os orçamentos foram limpos.');
-          },
-        },
-      ]
-    );
-  }
-
-  function toggleStatusFiltro(status: StatusOrcamento) {
-    setFiltroStatusTemp(prev =>
-      prev.includes(status) ? prev.filter(s => s !== status) : [...prev, status]
-    );
-  }
-
-  async function handleAplicarFiltro() {
-    const todos = await OrcamentoStorage.getOrcamento();
-
-    let resultado = filtroStatusTemp.length > 0
-      ? todos.filter(o => filtroStatusTemp.includes(o.status))
-      : todos;
-
-    const getTotal = (o: Orcamento) => {
-      const sub = o.itens.reduce((acc, it) => acc + it.precoUnitario * it.quantidade, 0);
-      return sub - (o.percentualDesconto ? sub * o.percentualDesconto / 100 : 0);
-    };
-
-    switch (filtroOrdenacao) {
-      case 'antigo':
-        resultado = [...resultado].sort((a, b) => a.dataCriacao.localeCompare(b.dataCriacao));
-        break;
-      case 'maior':
-        resultado = [...resultado].sort((a, b) => getTotal(b) - getTotal(a));
-        break;
-      case 'menor':
-        resultado = [...resultado].sort((a, b) => getTotal(a) - getTotal(b));
-        break;
-      case 'recente':
-      default:
-        resultado = [...resultado].sort((a, b) => b.dataCriacao.localeCompare(a.dataCriacao));
-    }
-
-    setOrcamentos(resultado);
-    setFiltroModalVisible(false);
-  }
-
-  function handleResetarFiltros() {
-    setFiltroStatusTemp([]);
-    setFiltroOrdenacao('recente');
-  }
-
-  const ORDENACOES: { key: Ordenacao; label: string }[] = [
-    { key: 'recente', label: 'Mais recente' },
-    { key: 'antigo', label: 'Mais antigo' },
-    { key: 'maior', label: 'Maior valor' },
-    { key: 'menor', label: 'Menor valor' },
-  ];
+  const percentual = calcularPercentual(refeicoes);
+  const isPositivo = percentual >= 50;
+  const sections = agruparPorData(refeicoes);
 
   return (
-    <View style={styles.safeArea}>
+    <Container>
+      <Header>
+        <HeaderLogo>Daily Diet</HeaderLogo>
+        <UserAvatar source={{ uri: 'https://i.pravatar.cc/100' }} />
+      </Header>
 
-      <View style={styles.header}>
-        <View>
-          <Text style={styles.headerTitle}>Orçamentos</Text>
-          <Text style={styles.headerSubtitle}>
-            Você tem {quantidadeRascunho} item{quantidadeRascunho !== 1 ? 's' : ''} em rascunho
-          </Text>
-        </View>
-
-        <View style={styles.headerActions}>
-          <TouchableOpacity style={styles.novoButton} onPress={() => setModalVisible(true)}>
-            <Plus size={18} color="#ffffff" />
-            <Text style={styles.novoButtonText}>Novo</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.limparButton} onPress={limparOrcamentos}>
-            <Text style={styles.limparButtonText}>Limpar</Text>
-          </TouchableOpacity>
-        </View>
-
-      </View>
-
-      <View style={styles.searchRow}>
-        <View style={styles.searchContainer}>
-          <Search size={18} color="#888888" />
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Título ou cliente"
-            placeholderTextColor="#aaaaaa"
-            value={busca}
-            onChangeText={setBusca}
-          />
-        </View>
-        <TouchableOpacity style={styles.sortButton} onPress={() => setFiltroModalVisible(true)}>
-          <SlidersHorizontal size={20} color="#444444" />
-        </TouchableOpacity>
-      </View>
-
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={styles.filtersScrollView}
-        contentContainerStyle={styles.filtersScroll}
+      <PercentageCard
+        isPositivo={isPositivo}
+        onPress={() => navigation.navigate('estatisticas')}
       >
-        {STATUS_ORCAMENTO.map(status => (
-          <Filter
-            key={status}
-            status={status}
-            isActive={filtroStatus === status}
-            onPress={() => handleFiltroStatus(status)}
+        <PercentageArrow>
+          <ArrowUpRight
+            size={24}
+            color={isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK}
           />
-        ))}
-      </ScrollView>
+        </PercentageArrow>
+        <PercentageNumber isPositivo={isPositivo}>
+          {percentual.toFixed(2).replace('.', ',')}%
+        </PercentageNumber>
+        <PercentageLabel>das refeições dentro da dieta</PercentageLabel>
+      </PercentageCard>
 
-      <FlatList
-        data={orcamentos}
-        keyExtractor={item => item.id}
-        contentContainerStyle={styles.listContent}
-        ListEmptyComponent={
-          <Text style={styles.emptyText}>Nenhum orçamento encontrado.</Text>
-        }
-        renderItem={({ item }) => (
-          <OrcamentoCard
-            orcamento={item}
-            onReject={recusarOrcamento}
-            onPress={() => {
-              setModalOrcamento(item);
-              setModalOrcamentoVisible(true);
-            }}
-          />
-        )}
-      />
+      <ListContainer>
+        <AddButton onPress={() => navigation.navigate('novaRefeicao', {})}>
+          <Plus size={18} color={THEME.COLORS.WHITE} />
+          <AddButtonLabel>Nova refeição</AddButtonLabel>
+        </AddButton>
 
-      {/* Modal novo orçamento */}
-      <Modal
-        visible={modalVisible}
-        animationType="slide"
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <NovoOrcamento
-          onSave={handleSalvarOrcamento}
-          onClose={() => setModalVisible(false)}
+        <SectionList
+          sections={sections}
+          keyExtractor={item => item.id}
+          renderSectionHeader={({ section }) => (
+            <SectionTitle>{section.title}</SectionTitle>
+          )}
+          renderItem={({ item }) => (
+            <RefeicaoCard
+              refeicao={item}
+              onPress={() =>
+                navigation.navigate('detalhesRefeicao', { refeicaoId: item.id })
+              }
+            />
+          )}
+          ListEmptyComponent={
+            <EmptyText>
+              {'Nenhuma refeição cadastrada.\nAdicione sua primeira refeição!'}
+            </EmptyText>
+          }
+          showsVerticalScrollIndicator={false}
         />
-      </Modal>
-
-      {/* Modal visualizar orçamento */}
-      <Modal
-        visible={modalOrcamentoVisible}
-        animationType="slide"
-        onRequestClose={() => setModalOrcamentoVisible(false)}
-      >
-        <VisualizarOrcamento
-          item={modalOrcamento!}
-          onClose={() => setModalOrcamentoVisible(false)}
-          onDelete={() => {
-            setOrcamentos(prev => prev.filter(o => o.id !== modalOrcamento?.id));
-            setModalOrcamentoVisible(false);
-          }}
-          onUpdate={(updated) => {
-            setOrcamentos(prev => prev.map(o => o.id === updated.id ? updated : o));
-            setModalOrcamento(updated);
-          }}
-        />
-      </Modal>
-
-      {/* Modal filtrar e ordenar */}
-      <Modal
-        visible={filtroModalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={() => setFiltroModalVisible(false)}
-      >
-        <View style={styles.filtroOverlay}>
-          <View style={styles.filtroContainer}>
-            <View style={styles.filtroHeader}>
-              <Text style={styles.filtroTitle}>Filtrar e ordenar</Text>
-              <TouchableOpacity onPress={() => setFiltroModalVisible(false)}>
-                <X size={22} color="#444444" />
-              </TouchableOpacity>
-            </View>
-
-            <Text style={styles.filtroSectionLabel}>Status</Text>
-            {STATUS_FILTRO.map(status => (
-              <TouchableOpacity
-                key={status}
-                style={styles.filtroCheckRow}
-                onPress={() => toggleStatusFiltro(status)}
-              >
-                <View style={[styles.checkbox, filtroStatusTemp.includes(status) && styles.checkboxActive]}>
-                  {filtroStatusTemp.includes(status) && <Check size={12} color="#ffffff" />}
-                </View>
-                <OrcamentoIcon status={status} />
-              </TouchableOpacity>
-            ))}
-
-            <Text style={[styles.filtroSectionLabel, { marginTop: 20 }]}>Ordenação</Text>
-            {ORDENACOES.map(({ key, label }) => (
-              <TouchableOpacity
-                key={key}
-                style={styles.filtroRadioRow}
-                onPress={() => setFiltroOrdenacao(key)}
-              >
-                <View style={[styles.radio, filtroOrdenacao === key && styles.radioActive]}>
-                  {filtroOrdenacao === key && <View style={styles.radioInner} />}
-                </View>
-                <Text style={styles.filtroRadioLabel}>{label}</Text>
-              </TouchableOpacity>
-            ))}
-
-            <View style={styles.filtroActions}>
-              <TouchableOpacity style={styles.resetarButton} onPress={handleResetarFiltros}>
-                <Text style={styles.resetarText}>Resetar filtros</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.aplicarButton} onPress={handleAplicarFiltro}>
-                <Check size={16} color="#ffffff" />
-                <Text style={styles.aplicarText}>Aplicar</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-    </View>
+      </ListContainer>
+    </Container>
   );
 }

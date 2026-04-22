@@ -1,15 +1,18 @@
-import { TouchableOpacity, TouchableOpacityProps, Text } from "react-native";
-import { styles } from "./styles";
+import { ReactNode } from 'react';
+import { TouchableOpacityProps } from 'react-native';
+import { Container, Label } from './styles';
 
-type Props = TouchableOpacityProps & {
-    title: string;   
-    height?: number;
-}
+type ButtonProps = TouchableOpacityProps & {
+  title: string;
+  variant?: 'primary' | 'secondary';
+  icon?: ReactNode;
+};
 
-export function Button({ title, ...rest }: Props) {
-    return (
-        <TouchableOpacity style={styles.container} {...rest}>
-            <Text style={styles.title}>{title}</Text>
-        </TouchableOpacity>
-    );
+export function Button({ title, variant = 'primary', icon, ...rest }: ButtonProps) {
+  return (
+    <Container variant={variant} {...rest}>
+      {icon}
+      <Label variant={variant}>{title}</Label>
+    </Container>
+  );
 }
