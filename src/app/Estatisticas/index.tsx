@@ -47,7 +47,6 @@ function calcularEstatisticas(refeicoes: Refeicao[]): Stats {
   );
 
   let melhorSequencia = 0;
-  let sequenciaAtual = 0;
   let contador = 0;
 
   for (const r of sorted) {
@@ -58,7 +57,7 @@ function calcularEstatisticas(refeicoes: Refeicao[]): Stats {
       contador = 0;
     }
   }
-  sequenciaAtual = contador;
+  const sequenciaAtual = contador;
 
   return { total, dentro, fora, percentual, melhorSequencia, sequenciaAtual };
 }
@@ -77,7 +76,7 @@ export default function Estatisticas() {
   const isPositivo = stats.percentual >= 50;
 
   return (
-    <Container isPositivo={isPositivo}>
+    <Container $isPositivo={isPositivo}>
       <Header>
         <BackButton onPress={() => navigation.goBack()}>
           <ArrowLeft
@@ -85,7 +84,7 @@ export default function Estatisticas() {
             color={isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK}
           />
         </BackButton>
-        <PercentageNumber isPositivo={isPositivo}>
+        <PercentageNumber $isPositivo={isPositivo}>
           {stats.percentual.toFixed(2).replace('.', ',')}%
         </PercentageNumber>
         <PercentageLabel>das refeições dentro da dieta</PercentageLabel>
@@ -109,11 +108,11 @@ export default function Estatisticas() {
           </StatCard>
 
           <CardRow>
-            <StatCard color="green" half>
+            <StatCard $color="green" $half>
               <StatNumber>{stats.dentro}</StatNumber>
               <StatLabel>refeições{'\n'}dentro da dieta</StatLabel>
             </StatCard>
-            <StatCard color="red" half>
+            <StatCard $color="red" $half>
               <StatNumber>{stats.fora}</StatNumber>
               <StatLabel>refeições{'\n'}fora da dieta</StatLabel>
             </StatCard>

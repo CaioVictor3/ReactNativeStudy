@@ -2,7 +2,7 @@ import styled from 'styled-components/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { THEME } from '@/theme';
 
-type DietProp = { dentroODieta: boolean };
+type D = { $dentroODieta: boolean };
 
 export const Container = styled(SafeAreaView)`
   flex: 1;
@@ -12,11 +12,11 @@ export const Container = styled(SafeAreaView)`
   padding: 24px;
 `;
 
-export const Title = styled.Text<DietProp>`
+export const Title = styled.Text<D>`
   font-size: ${THEME.FONT_SIZE.XL}px;
   font-weight: bold;
-  color: ${({ dentroODieta }: DietProp) =>
-    dentroODieta ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
+  color: ${(p: D) =>
+    p.$dentroODieta ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
   text-align: center;
   margin-bottom: 8px;
 `;

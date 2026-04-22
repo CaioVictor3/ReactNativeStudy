@@ -63,7 +63,7 @@ export default function DetalhesRefeicao() {
   if (!refeicao) return null;
 
   return (
-    <Container dentroODieta={refeicao.dentroODieta}>
+    <Container $dentroODieta={refeicao.dentroODieta}>
       <Header>
         <BackButton onPress={() => navigation.goBack()}>
           <ArrowLeft size={24} color={THEME.COLORS.GRAY_2} />
@@ -71,8 +71,8 @@ export default function DetalhesRefeicao() {
         <HeaderTitle>Refeição</HeaderTitle>
       </Header>
 
-      <StatusBadge dentroODieta={refeicao.dentroODieta}>
-        <StatusText dentroODieta={refeicao.dentroODieta}>
+      <StatusBadge $dentroODieta={refeicao.dentroODieta}>
+        <StatusText $dentroODieta={refeicao.dentroODieta}>
           {refeicao.dentroODieta ? '● dentro da dieta' : '● fora da dieta'}
         </StatusText>
       </StatusBadge>

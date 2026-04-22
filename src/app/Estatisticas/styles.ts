@@ -2,13 +2,13 @@ import styled from 'styled-components/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { THEME } from '@/theme';
 
-type PositivoProp = { isPositivo: boolean };
-type CardProps = { color?: 'green' | 'red'; half?: boolean };
+type P = { $isPositivo: boolean };
+type CardProps = { $color?: 'green' | 'red'; $half?: boolean };
 
-export const Container = styled(SafeAreaView)<PositivoProp>`
+export const Container = styled(SafeAreaView)<P>`
   flex: 1;
-  background-color: ${({ isPositivo }: PositivoProp) =>
-    isPositivo ? THEME.COLORS.GREEN_LIGHT : THEME.COLORS.RED_LIGHT};
+  background-color: ${(p: P) =>
+    p.$isPositivo ? THEME.COLORS.GREEN_LIGHT : THEME.COLORS.RED_LIGHT};
 `;
 
 export const Header = styled.View`
@@ -23,11 +23,11 @@ export const BackButton = styled.TouchableOpacity`
   top: 24px;
 `;
 
-export const PercentageNumber = styled.Text<PositivoProp>`
+export const PercentageNumber = styled.Text<P>`
   font-size: ${THEME.FONT_SIZE.XXL}px;
   font-weight: bold;
-  color: ${({ isPositivo }: PositivoProp) =>
-    isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
+  color: ${(p: P) =>
+    p.$isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
 `;
 
 export const PercentageLabel = styled.Text`
@@ -50,10 +50,10 @@ export const CardRow = styled.View`
 `;
 
 export const StatCard = styled.View<CardProps>`
-  flex: ${({ half }: CardProps) => (half ? 1 : 0)};
-  background-color: ${({ color }: CardProps) => {
-    if (color === 'green') return THEME.COLORS.GREEN_LIGHT;
-    if (color === 'red') return THEME.COLORS.RED_LIGHT;
+  flex: ${(p: CardProps) => (p.$half ? 1 : 0)};
+  background-color: ${(p: CardProps) => {
+    if (p.$color === 'green') return THEME.COLORS.GREEN_LIGHT;
+    if (p.$color === 'red') return THEME.COLORS.RED_LIGHT;
     return THEME.COLORS.GRAY_6;
   }};
   border-radius: 8px;

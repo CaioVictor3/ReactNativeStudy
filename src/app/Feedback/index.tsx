@@ -19,7 +19,7 @@ export default function Feedback() {
 
   return (
     <Container>
-      <Title dentroODieta={dentroODieta}>
+      <Title $dentroODieta={dentroODieta}>
         {dentroODieta ? 'Continue assim!' : 'Que pena!'}
       </Title>
 

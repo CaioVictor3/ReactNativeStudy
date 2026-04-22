@@ -45,13 +45,11 @@ function agruparPorData(refeicoes: Refeicao[]): Section[] {
       parseDateHour(b.data, b.hora).getTime() -
       parseDateHour(a.data, a.hora).getTime()
   );
-
   const mapa: Record<string, Refeicao[]> = {};
   for (const r of sorted) {
     if (!mapa[r.data]) mapa[r.data] = [];
     mapa[r.data].push(r);
   }
-
   return Object.entries(mapa).map(([title, data]) => ({ title, data }));
 }
 
@@ -77,7 +75,7 @@ export default function Home() {
       </Header>
 
       <PercentageCard
-        isPositivo={isPositivo}
+        $isPositivo={isPositivo}
         onPress={() => navigation.navigate('estatisticas')}
       >
         <PercentageArrow>
@@ -86,7 +84,7 @@ export default function Home() {
             color={isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK}
           />
         </PercentageArrow>
-        <PercentageNumber isPositivo={isPositivo}>
+        <PercentageNumber $isPositivo={isPositivo}>
           {percentual.toFixed(2).replace('.', ',')}%
         </PercentageNumber>
         <PercentageLabel>das refeições dentro da dieta</PercentageLabel>

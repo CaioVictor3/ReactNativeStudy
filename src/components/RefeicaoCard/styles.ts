@@ -1,7 +1,7 @@
 import styled from 'styled-components/native';
 import { THEME } from '@/theme';
 
-type D = { dentroODieta: boolean };
+type D = { $dentroODieta: boolean };
 
 export const Container = styled.TouchableOpacity`
   flex-direction: row;
@@ -38,6 +38,6 @@ export const StatusDot = styled.View<D>`
   height: 14px;
   border-radius: 7px;
   background-color: ${(p: D) =>
-    p.dentroODieta ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
+    p.$dentroODieta ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
   margin-left: 8px;
 `;

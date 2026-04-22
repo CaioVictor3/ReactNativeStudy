@@ -2,12 +2,12 @@ import styled from 'styled-components/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { THEME } from '@/theme';
 
-type DietProp = { dentroODieta: boolean };
+type D = { $dentroODieta: boolean };
 
-export const Container = styled(SafeAreaView)<DietProp>`
+export const Container = styled(SafeAreaView)<D>`
   flex: 1;
-  background-color: ${({ dentroODieta }: DietProp) =>
-    dentroODieta ? THEME.COLORS.GREEN_LIGHT : THEME.COLORS.RED_LIGHT};
+  background-color: ${(p: D) =>
+    p.$dentroODieta ? THEME.COLORS.GREEN_LIGHT : THEME.COLORS.RED_LIGHT};
 `;
 
 export const Header = styled.View`
@@ -28,22 +28,22 @@ export const HeaderTitle = styled.Text`
   color: ${THEME.COLORS.GRAY_1};
 `;
 
-export const StatusBadge = styled.View<DietProp>`
+export const StatusBadge = styled.View<D>`
   align-self: center;
   flex-direction: row;
   align-items: center;
-  background-color: ${({ dentroODieta }: DietProp) =>
-    dentroODieta ? THEME.COLORS.GREEN_MID : THEME.COLORS.RED_MID};
+  background-color: ${(p: D) =>
+    p.$dentroODieta ? THEME.COLORS.GREEN_MID : THEME.COLORS.RED_MID};
   border-radius: 999px;
   padding: 6px 16px;
   margin-bottom: 40px;
 `;
 
-export const StatusText = styled.Text<DietProp>`
+export const StatusText = styled.Text<D>`
   font-size: ${THEME.FONT_SIZE.XS}px;
   font-weight: bold;
-  color: ${({ dentroODieta }: DietProp) =>
-    dentroODieta ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
+  color: ${(p: D) =>
+    p.$dentroODieta ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
 `;
 
 export const Content = styled.View`

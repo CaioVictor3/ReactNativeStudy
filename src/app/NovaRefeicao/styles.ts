@@ -50,8 +50,8 @@ export const DietRow = styled.View`
   margin-bottom: 24px;
 `;
 
-type DietTypeProp = { dietType: 'sim' | 'nao' };
-type DietOptionProp = DietTypeProp & { selected: boolean };
+type DietOptionProp = { $dietType: 'sim' | 'nao'; $selected: boolean };
+type DietDotProp = { $dietType: 'sim' | 'nao' };
 
 export const DietOption = styled.TouchableOpacity<DietOptionProp>`
   flex: 1;
@@ -61,23 +61,23 @@ export const DietOption = styled.TouchableOpacity<DietOptionProp>`
   padding: 16px;
   border-radius: 6px;
   gap: 8px;
-  background-color: ${({ selected, dietType }: DietOptionProp) => {
-    if (!selected) return THEME.COLORS.GRAY_6;
-    return dietType === 'sim' ? THEME.COLORS.GREEN_LIGHT : THEME.COLORS.RED_LIGHT;
+  background-color: ${(p: DietOptionProp) => {
+    if (!p.$selected) return THEME.COLORS.GRAY_6;
+    return p.$dietType === 'sim' ? THEME.COLORS.GREEN_LIGHT : THEME.COLORS.RED_LIGHT;
   }};
   border-width: 1px;
-  border-color: ${({ selected, dietType }: DietOptionProp) => {
-    if (!selected) return THEME.COLORS.GRAY_5;
-    return dietType === 'sim' ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK;
+  border-color: ${(p: DietOptionProp) => {
+    if (!p.$selected) return THEME.COLORS.GRAY_5;
+    return p.$dietType === 'sim' ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK;
   }};
 `;
 
-export const DietDot = styled.View<DietTypeProp>`
+export const DietDot = styled.View<DietDotProp>`
   width: 8px;
   height: 8px;
   border-radius: 4px;
-  background-color: ${({ dietType }: DietTypeProp) =>
-    dietType === 'sim' ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
+  background-color: ${(p: DietDotProp) =>
+    p.$dietType === 'sim' ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
 `;
 
 export const DietOptionLabel = styled.Text`

@@ -28,10 +28,10 @@ export const UserAvatar = styled.Image`
   border-color: ${THEME.COLORS.GRAY_2};
 `;
 
-export const PercentageCard = styled.TouchableOpacity<{ isPositivo: boolean }>`
+export const PercentageCard = styled.TouchableOpacity<{ $isPositivo: boolean }>`
   margin: 24px;
-  background-color: ${({ isPositivo }: { isPositivo: boolean }) =>
-    isPositivo ? THEME.COLORS.GREEN_LIGHT : THEME.COLORS.RED_LIGHT};
+  background-color: ${(p: { $isPositivo: boolean }) =>
+    p.$isPositivo ? THEME.COLORS.GREEN_LIGHT : THEME.COLORS.RED_LIGHT};
   border-radius: 8px;
   padding: 20px;
   align-items: center;
@@ -43,11 +43,11 @@ export const PercentageArrow = styled.View`
   right: 8px;
 `;
 
-export const PercentageNumber = styled.Text<{ isPositivo: boolean }>`
+export const PercentageNumber = styled.Text<{ $isPositivo: boolean }>`
   font-size: ${THEME.FONT_SIZE.XXL}px;
   font-weight: bold;
-  color: ${({ isPositivo }: { isPositivo: boolean }) =>
-    isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
+  color: ${(p: { $isPositivo: boolean }) =>
+    p.$isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK};
 `;
 
 export const PercentageLabel = styled.Text`

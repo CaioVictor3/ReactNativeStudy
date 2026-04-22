@@ -12,7 +12,7 @@ export function RefeicaoCard({ refeicao, ...rest }: Props) {
       <Hora>{refeicao.hora}</Hora>
       <Separator />
       <Nome numberOfLines={1}>{refeicao.nome}</Nome>
-      <StatusDot dentroODieta={refeicao.dentroODieta} />
+      <StatusDot $dentroODieta={refeicao.dentroODieta} />
     </Container>
   );
 }

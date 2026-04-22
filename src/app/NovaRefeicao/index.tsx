@@ -135,19 +135,19 @@ export default function NovaRefeicao() {
           <DietLabel>Está dentro da dieta?</DietLabel>
           <DietRow>
             <DietOption
-              selected={dentroODieta === true}
-              dietType="sim"
+              $selected={dentroODieta === true}
+              $dietType="sim"
               onPress={() => setDentroODieta(true)}
             >
-              <DietDot dietType="sim" />
+              <DietDot $dietType="sim" />
               <DietOptionLabel>Sim</DietOptionLabel>
             </DietOption>
             <DietOption
-              selected={dentroODieta === false}
-              dietType="nao"
+              $selected={dentroODieta === false}
+              $dietType="nao"
               onPress={() => setDentroODieta(false)}
             >
-              <DietDot dietType="nao" />
+              <DietDot $dietType="nao" />
               <DietOptionLabel>Não</DietOptionLabel>
             </DietOption>
           </DietRow>
