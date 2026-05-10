@@ -1,10 +1,9 @@
-import { TransactionTypes } from "@/utils/TransactionTypes";
 import { View } from "react-native";
 import { Option } from "./option";
 
 type Props = {
-	selected: TransactionTypes;
-	onChange: (type: TransactionTypes) => void;
+	selected: "input" | "output";
+	onChange: (type: "input" | "output") => void;
 };
 
 export function TransactionType({ selected, onChange }: Props) {
@@ -13,15 +12,15 @@ export function TransactionType({ selected, onChange }: Props) {
 			<Option
 				title="Guardar"
 				icon="arrow-upward"
-				isSelected={selected === TransactionTypes.Input}
-				onPress={() => onChange(TransactionTypes.Input)}
+				isSelected={selected === "input"}
+				onPress={() => onChange("input")}
 			/>
 
 			<Option
 				title="Resgatar"
 				icon="arrow-downward"
-				isSelected={selected === TransactionTypes.Output}
-				onPress={() => onChange(TransactionTypes.Output)}
+				isSelected={selected === "output"}
+				onPress={() => onChange("output")}
 			/>
 		</View>
 	);

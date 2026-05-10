@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Alert, ScrollView } from 'react-native';
+import { Alert, SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft } from 'lucide-react-native';
@@ -9,20 +9,8 @@ import { Refeicao } from '@/types/Refeicao';
 import { RefeicaoStorage } from '@/storage/refeicaoStorage';
 import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
-import { THEME } from '@/theme';
-import {
-  Container,
-  Header,
-  BackButton,
-  Title,
-  Content,
-  Row,
-  DietLabel,
-  DietRow,
-  DietOption,
-  DietDot,
-  DietOptionLabel,
-} from './styles';
+import { DD_COLORS } from '@/theme/dailyDiet';
+import { styles } from './_styles';
 
 type RouteParams = RouteProp<AppRoutes, 'novaRefeicao'>;
 
@@ -106,15 +94,15 @@ export default function NovaRefeicao() {
   }
 
   return (
-    <Container>
-      <Header>
-        <BackButton onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color={THEME.COLORS.GRAY_2} />
-        </BackButton>
-        <Title>{isEditing ? 'Editar refeição' : 'Nova refeição'}</Title>
-      </Header>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <ArrowLeft size={24} color={DD_COLORS.gray2} />
+        </TouchableOpacity>
+        <Text style={styles.title}>{isEditing ? 'Editar refeição' : 'Nova refeição'}</Text>
+      </View>
 
-      <Content>
+      <View style={styles.content}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <Input label="Nome" value={nome} onChangeText={setNome} placeholder="Nome da refeição" />
           <Input
@@ -126,7 +114,7 @@ export default function NovaRefeicao() {
             numberOfLines={4}
             textAlignVertical="top"
           />
-          <Row>
+          <View style={styles.row}>
             <Input
               label="Data"
               value={data}
@@ -145,34 +133,32 @@ export default function NovaRefeicao() {
               maxLength={5}
               containerStyle={{ flex: 1 }}
             />
-          </Row>
+          </View>
 
-          <DietLabel>Está dentro da dieta?</DietLabel>
-          <DietRow>
-            <DietOption
-              $selected={dentroODieta === true}
-              $dietType="sim"
+          <Text style={styles.dietLabel}>Está dentro da dieta?</Text>
+          <View style={styles.dietRow}>
+            <TouchableOpacity
+              style={[styles.dietOptionBase, dentroODieta === true ? styles.dietOptionSim : styles.dietOptionDefault]}
               onPress={() => setDentroODieta(true)}
             >
-              <DietDot $dietType="sim" />
-              <DietOptionLabel>Sim</DietOptionLabel>
-            </DietOption>
-            <DietOption
-              $selected={dentroODieta === false}
-              $dietType="nao"
+              <View style={styles.dietDotSim} />
+              <Text style={styles.dietOptionLabel}>Sim</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.dietOptionBase, dentroODieta === false ? styles.dietOptionNao : styles.dietOptionDefault]}
               onPress={() => setDentroODieta(false)}
             >
-              <DietDot $dietType="nao" />
-              <DietOptionLabel>Não</DietOptionLabel>
-            </DietOption>
-          </DietRow>
+              <View style={styles.dietDotNao} />
+              <Text style={styles.dietOptionLabel}>Não</Text>
+            </TouchableOpacity>
+          </View>
 
           <Button
             title={isEditing ? 'Salvar alterações' : 'Cadastrar refeição'}
             onPress={handleSalvar}
           />
         </ScrollView>
-      </Content>
-    </Container>
+      </View>
+    </SafeAreaView>
   );
 }

@@ -2,11 +2,11 @@ import { Button } from "@/components/Button";
 import { List } from "@/components/List";
 import { Progress } from "@/components/Progress";
 import { Transaction } from "@/components/Transaction";
-import { metaStorage, MetaStorage } from "@/storage/MetaStorage";
+import { Meta, useMetasDatabase } from "@/database/useMetasDatabase";
 import {
-	TransactionStorage,
-	transactionStorage,
-} from "@/storage/TransactionStorage";
+	Transaction as TransactionType,
+	useTransactionsDatabase,
+} from "@/database/useTransactionsDatabase";
 import { MaterialIcons } from "@expo/vector-icons";
 import { HeaderTitle } from "@react-navigation/elements";
 import { router, useLocalSearchParams } from "expo-router";
@@ -15,35 +15,29 @@ import { Pressable, View } from "react-native";
 
 export default function InProgress() {
 	const params = useLocalSearchParams<{ id: string }>();
+	const metasDatabase = useMetasDatabase();
+	const transactionsDatabase = useTransactionsDatabase();
 
-	const [meta, setMeta] = useState<MetaStorage | null>(null);
-	const [transactions, setTransactions] = useState<TransactionStorage[]>([]);
+	const [meta, setMeta] = useState<Meta | null>(null);
+	const [transactions, setTransactions] = useState<TransactionType[]>([]);
+
+	async function load() {
+		const metaId = Number(params.id);
+		const [metaData, transactionsList] = await Promise.all([
+			metasDatabase.getById(metaId),
+			transactionsDatabase.listByMeta(metaId),
+		]);
+		setMeta(metaData);
+		setTransactions(transactionsList);
+	}
 
 	useEffect(() => {
-		metaStorage.getById(params.id).then((data) => {
-			setMeta(data);
-		});
-
-		transactionStorage.getByMetaId(params.id).then((data) => {
-			setTransactions(data);
-		});
+		load();
 	}, []);
 
-	function handleRemoveTransaction(id: string) {
-		transactionStorage
-			.remove(id)
-			.then(() => {
-				metaStorage.getById(params.id).then((data) => {
-					setMeta(data);
-				});
-
-				transactionStorage.getByMetaId(params.id).then((data) => {
-					setTransactions(data);
-				});
-			})
-			.catch((error) => {
-				console.error("Erro ao remover a transação:", error);
-			});
+	async function handleRemoveTransaction(id: number) {
+		await transactionsDatabase.remove(id);
+		load();
 	}
 
 	return (

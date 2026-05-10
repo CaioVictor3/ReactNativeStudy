@@ -1,4 +1,5 @@
 import { useCallback, useState } from 'react';
+import { SafeAreaView, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft, PencilLine, Trash2 } from 'lucide-react-native';
@@ -8,20 +9,8 @@ import { Refeicao } from '@/types/Refeicao';
 import { RefeicaoStorage } from '@/storage/refeicaoStorage';
 import { Button } from '@/components/Button';
 import { ConfirmModal } from '@/components/ConfirmModal';
-import { THEME } from '@/theme';
-import {
-  Container,
-  Header,
-  BackButton,
-  HeaderTitle,
-  StatusBadge,
-  StatusText,
-  Content,
-  InfoSection,
-  InfoLabel,
-  InfoValue,
-  ButtonsArea,
-} from './styles';
+import { DD_COLORS } from '@/theme/dailyDiet';
+import { styles } from './_styles';
 
 type RouteParams = RouteProp<AppRoutes, 'detalhesRefeicao'>;
 
@@ -56,50 +45,50 @@ export default function DetalhesRefeicao() {
   if (!refeicao) return null;
 
   return (
-    <Container $dentroODieta={refeicao.dentroODieta}>
-      <Header>
-        <BackButton onPress={() => navigation.goBack()}>
-          <ArrowLeft size={24} color={THEME.COLORS.GRAY_2} />
-        </BackButton>
-        <HeaderTitle>Refeição</HeaderTitle>
-      </Header>
+    <SafeAreaView style={refeicao.dentroODieta ? styles.containerDentro : styles.containerFora}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <ArrowLeft size={24} color={DD_COLORS.gray2} />
+        </TouchableOpacity>
+        <Text style={styles.headerTitle}>Refeição</Text>
+      </View>
 
-      <StatusBadge $dentroODieta={refeicao.dentroODieta}>
-        <StatusText $dentroODieta={refeicao.dentroODieta}>
+      <View style={refeicao.dentroODieta ? styles.statusBadgeDentro : styles.statusBadgeFora}>
+        <Text style={refeicao.dentroODieta ? styles.statusTextDentro : styles.statusTextFora}>
           {refeicao.dentroODieta ? '● dentro da dieta' : '● fora da dieta'}
-        </StatusText>
-      </StatusBadge>
+        </Text>
+      </View>
 
-      <Content>
-        <InfoSection>
-          <InfoLabel>Nome</InfoLabel>
-          <InfoValue>{refeicao.nome}</InfoValue>
-        </InfoSection>
+      <View style={styles.content}>
+        <View style={styles.infoSection}>
+          <Text style={styles.infoLabel}>Nome</Text>
+          <Text style={styles.infoValue}>{refeicao.nome}</Text>
+        </View>
 
-        <InfoSection>
-          <InfoLabel>Descrição</InfoLabel>
-          <InfoValue>{refeicao.descricao}</InfoValue>
-        </InfoSection>
+        <View style={styles.infoSection}>
+          <Text style={styles.infoLabel}>Descrição</Text>
+          <Text style={styles.infoValue}>{refeicao.descricao}</Text>
+        </View>
 
-        <InfoSection>
-          <InfoLabel>Data e hora</InfoLabel>
-          <InfoValue>{refeicao.data} às {refeicao.hora}</InfoValue>
-        </InfoSection>
+        <View style={styles.infoSection}>
+          <Text style={styles.infoLabel}>Data e hora</Text>
+          <Text style={styles.infoValue}>{refeicao.data} às {refeicao.hora}</Text>
+        </View>
 
-        <ButtonsArea>
+        <View style={styles.buttonsArea}>
           <Button
             title="Editar refeição"
-            icon={<PencilLine size={18} color={THEME.COLORS.WHITE} />}
+            icon={<PencilLine size={18} color={DD_COLORS.white} />}
             onPress={handleEditar}
           />
           <Button
             title="Excluir refeição"
             variant="secondary"
-            icon={<Trash2 size={18} color={THEME.COLORS.GRAY_1} />}
+            icon={<Trash2 size={18} color={DD_COLORS.gray1} />}
             onPress={handleExcluir}
           />
-        </ButtonsArea>
-      </Content>
+        </View>
+      </View>
 
       <ConfirmModal
         visible={deleteModalVisible}
@@ -109,6 +98,6 @@ export default function DetalhesRefeicao() {
         onConfirm={confirmarExclusao}
         onCancel={() => setDeleteModalVisible(false)}
       />
-    </Container>
+    </SafeAreaView>
   );
 }

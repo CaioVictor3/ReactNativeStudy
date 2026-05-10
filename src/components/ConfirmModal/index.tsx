@@ -1,15 +1,5 @@
-import { Modal } from 'react-native';
-import {
-  Overlay,
-  Box,
-  Title,
-  Message,
-  ButtonRow,
-  CancelButton,
-  CancelLabel,
-  ConfirmButton,
-  ConfirmLabel,
-} from './styles';
+import { Modal, Text, TouchableOpacity, View } from 'react-native';
+import { styles } from './styles';
 
 type Props = {
   visible: boolean;
@@ -30,20 +20,20 @@ export function ConfirmModal({
 }: Props) {
   return (
     <Modal transparent animationType="fade" visible={visible} onRequestClose={onCancel}>
-      <Overlay>
-        <Box>
-          <Title>{title}</Title>
-          <Message>{message}</Message>
-          <ButtonRow>
-            <CancelButton onPress={onCancel}>
-              <CancelLabel>Cancelar</CancelLabel>
-            </CancelButton>
-            <ConfirmButton onPress={onConfirm}>
-              <ConfirmLabel>{confirmLabel}</ConfirmLabel>
-            </ConfirmButton>
-          </ButtonRow>
-        </Box>
-      </Overlay>
+      <View style={styles.overlay}>
+        <View style={styles.box}>
+          <Text style={styles.title}>{title}</Text>
+          <Text style={styles.message}>{message}</Text>
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.cancelButton} onPress={onCancel}>
+              <Text style={styles.cancelLabel}>Cancelar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.confirmButton} onPress={onConfirm}>
+              <Text style={styles.confirmLabel}>{confirmLabel}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
     </Modal>
   );
 }

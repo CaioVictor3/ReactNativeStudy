@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { SectionList } from 'react-native';
+import { Image, SafeAreaView, SectionList, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { Plus, ArrowUpRight } from 'lucide-react-native';
@@ -8,22 +8,8 @@ import { AppRoutes } from '@/routes';
 import { Refeicao } from '@/types/Refeicao';
 import { RefeicaoStorage } from '@/storage/refeicaoStorage';
 import { RefeicaoCard } from '@/components/RefeicaoCard';
-import { THEME } from '@/theme';
-import {
-  Container,
-  Header,
-  HeaderLogo,
-  UserAvatar,
-  PercentageCard,
-  PercentageArrow,
-  PercentageNumber,
-  PercentageLabel,
-  ListContainer,
-  AddButton,
-  AddButtonLabel,
-  SectionTitle,
-  EmptyText,
-} from './styles';
+import { DD_COLORS } from '@/theme/dailyDiet';
+import { styles } from './_styles';
 
 type Section = { title: string; data: Refeicao[] };
 
@@ -68,39 +54,36 @@ export default function Home() {
   const sections = agruparPorData(refeicoes);
 
   return (
-    <Container>
-      <Header>
-        <HeaderLogo>Daily Diet</HeaderLogo>
-        <UserAvatar source={{ uri: 'https://i.pravatar.cc/100' }} />
-      </Header>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.headerLogo}>Daily Diet</Text>
+        <Image source={{ uri: 'https://i.pravatar.cc/100' }} style={styles.userAvatar} />
+      </View>
 
-      <PercentageCard
-        $isPositivo={isPositivo}
+      <TouchableOpacity
+        style={isPositivo ? styles.percentageCardPositivo : styles.percentageCardNegativo}
         onPress={() => navigation.navigate('estatisticas')}
       >
-        <PercentageArrow>
-          <ArrowUpRight
-            size={24}
-            color={isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK}
-          />
-        </PercentageArrow>
-        <PercentageNumber $isPositivo={isPositivo}>
+        <View style={styles.percentageArrow}>
+          <ArrowUpRight size={24} color={isPositivo ? DD_COLORS.greenDark : DD_COLORS.redDark} />
+        </View>
+        <Text style={isPositivo ? styles.percentageNumberPositivo : styles.percentageNumberNegativo}>
           {percentual.toFixed(2).replace('.', ',')}%
-        </PercentageNumber>
-        <PercentageLabel>das refeições dentro da dieta</PercentageLabel>
-      </PercentageCard>
+        </Text>
+        <Text style={styles.percentageLabel}>das refeições dentro da dieta</Text>
+      </TouchableOpacity>
 
-      <ListContainer>
-        <AddButton onPress={() => navigation.navigate('novaRefeicao', {})}>
-          <Plus size={18} color={THEME.COLORS.WHITE} />
-          <AddButtonLabel>Nova refeição</AddButtonLabel>
-        </AddButton>
+      <View style={styles.listContainer}>
+        <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('novaRefeicao', {})}>
+          <Plus size={18} color={DD_COLORS.white} />
+          <Text style={styles.addButtonLabel}>Nova refeição</Text>
+        </TouchableOpacity>
 
         <SectionList
           sections={sections}
           keyExtractor={item => item.id}
           renderSectionHeader={({ section }) => (
-            <SectionTitle>{section.title}</SectionTitle>
+            <Text style={styles.sectionTitle}>{section.title}</Text>
           )}
           renderItem={({ item }) => (
             <RefeicaoCard
@@ -111,13 +94,13 @@ export default function Home() {
             />
           )}
           ListEmptyComponent={
-            <EmptyText>
+            <Text style={styles.emptyText}>
               {'Nenhuma refeição cadastrada.\nAdicione sua primeira refeição!'}
-            </EmptyText>
+            </Text>
           }
           showsVerticalScrollIndicator={false}
         />
-      </ListContainer>
-    </Container>
+      </View>
+    </SafeAreaView>
   );
 }

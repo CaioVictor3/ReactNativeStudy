@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { ScrollView } from 'react-native';
+import { SafeAreaView, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { ArrowLeft } from 'lucide-react-native';
@@ -7,19 +7,8 @@ import { ArrowLeft } from 'lucide-react-native';
 import { AppRoutes } from '@/routes';
 import { Refeicao } from '@/types/Refeicao';
 import { RefeicaoStorage } from '@/storage/refeicaoStorage';
-import { THEME } from '@/theme';
-import {
-  Container,
-  Header,
-  BackButton,
-  PercentageNumber,
-  PercentageLabel,
-  CardsArea,
-  StatCard,
-  StatNumber,
-  StatLabel,
-  CardRow,
-} from './styles';
+import { DD_COLORS } from '@/theme/dailyDiet';
+import { styles } from './_styles';
 
 type Stats = {
   total: number;
@@ -76,49 +65,46 @@ export default function Estatisticas() {
   const isPositivo = stats.percentual >= 50;
 
   return (
-    <Container $isPositivo={isPositivo}>
-      <Header>
-        <BackButton onPress={() => navigation.goBack()}>
-          <ArrowLeft
-            size={24}
-            color={isPositivo ? THEME.COLORS.GREEN_DARK : THEME.COLORS.RED_DARK}
-          />
-        </BackButton>
-        <PercentageNumber $isPositivo={isPositivo}>
+    <SafeAreaView style={isPositivo ? styles.containerPositivo : styles.containerNegativo}>
+      <View style={styles.header}>
+        <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
+          <ArrowLeft size={24} color={isPositivo ? DD_COLORS.greenDark : DD_COLORS.redDark} />
+        </TouchableOpacity>
+        <Text style={isPositivo ? styles.percentageNumberPositivo : styles.percentageNumberNegativo}>
           {stats.percentual.toFixed(2).replace('.', ',')}%
-        </PercentageNumber>
-        <PercentageLabel>das refeições dentro da dieta</PercentageLabel>
-      </Header>
+        </Text>
+        <Text style={styles.percentageLabel}>das refeições dentro da dieta</Text>
+      </View>
 
-      <CardsArea>
+      <View style={styles.cardsArea}>
         <ScrollView showsVerticalScrollIndicator={false}>
-          <StatCard>
-            <StatNumber>{stats.melhorSequencia}</StatNumber>
-            <StatLabel>melhor sequência de refeições{'\n'}dentro da dieta</StatLabel>
-          </StatCard>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{stats.melhorSequencia}</Text>
+            <Text style={styles.statLabel}>{'melhor sequência de refeições\ndentro da dieta'}</Text>
+          </View>
 
-          <StatCard>
-            <StatNumber>{stats.sequenciaAtual}</StatNumber>
-            <StatLabel>sequência atual de refeições{'\n'}dentro da dieta</StatLabel>
-          </StatCard>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{stats.sequenciaAtual}</Text>
+            <Text style={styles.statLabel}>{'sequência atual de refeições\ndentro da dieta'}</Text>
+          </View>
 
-          <StatCard>
-            <StatNumber>{stats.total}</StatNumber>
-            <StatLabel>refeições registradas</StatLabel>
-          </StatCard>
+          <View style={styles.statCard}>
+            <Text style={styles.statNumber}>{stats.total}</Text>
+            <Text style={styles.statLabel}>refeições registradas</Text>
+          </View>
 
-          <CardRow>
-            <StatCard $color="green" style={{ flex: 1 }}>
-              <StatNumber>{stats.dentro}</StatNumber>
-              <StatLabel>refeições{' '}dentro da dieta</StatLabel>
-            </StatCard>
-            <StatCard $color="red" style={{ flex: 1 }}>
-              <StatNumber>{stats.fora}</StatNumber>
-              <StatLabel>refeições{'\n'}fora da dieta</StatLabel>
-            </StatCard>
-          </CardRow>
+          <View style={styles.cardRow}>
+            <View style={[styles.statCardGreen, { flex: 1 }]}>
+              <Text style={styles.statNumber}>{stats.dentro}</Text>
+              <Text style={styles.statLabel}>{'refeições dentro da dieta'}</Text>
+            </View>
+            <View style={[styles.statCardRed, { flex: 1 }]}>
+              <Text style={styles.statNumber}>{stats.fora}</Text>
+              <Text style={styles.statLabel}>{'refeições\nfora da dieta'}</Text>
+            </View>
+          </View>
         </ScrollView>
-      </CardsArea>
-    </Container>
+      </View>
+    </SafeAreaView>
   );
 }

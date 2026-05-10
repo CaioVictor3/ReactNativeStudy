@@ -1,5 +1,5 @@
-import { TouchableOpacityProps } from 'react-native';
-import { Container, Hora, Nome, Separator, StatusDot } from './styles';
+import { Text, TouchableOpacity, TouchableOpacityProps, View } from 'react-native';
+import { styles } from './styles';
 import { Refeicao } from '@/types/Refeicao';
 
 type Props = TouchableOpacityProps & {
@@ -8,11 +8,11 @@ type Props = TouchableOpacityProps & {
 
 export function RefeicaoCard({ refeicao, ...rest }: Props) {
   return (
-    <Container {...rest}>
-      <Hora>{refeicao.hora}</Hora>
-      <Separator />
-      <Nome numberOfLines={1}>{refeicao.nome}</Nome>
-      <StatusDot $dentroODieta={refeicao.dentroODieta} />
-    </Container>
+    <TouchableOpacity style={styles.container} {...rest}>
+      <Text style={styles.hora}>{refeicao.hora}</Text>
+      <View style={styles.separator} />
+      <Text style={styles.nome} numberOfLines={1}>{refeicao.nome}</Text>
+      <View style={refeicao.dentroODieta ? styles.statusDotSim : styles.statusDotNao} />
+    </TouchableOpacity>
   );
 }

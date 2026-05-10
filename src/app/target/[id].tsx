@@ -1,24 +1,24 @@
 import { Button } from "@/components/Button";
 import { CurrencyInput } from "@/components/CurrencyInput";
 import { Input } from "@/components/Input";
+import { useMetasDatabase } from "@/database/useMetasDatabase";
+import { MaterialIcons } from "@expo/vector-icons";
 import { HeaderTitle } from "@react-navigation/elements";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
-
-import { metaStorage, MetaStorage } from "@/storage/MetaStorage";
-import { MaterialIcons } from "@expo/vector-icons";
-import { router, useLocalSearchParams } from "expo-router";
 
 export default function Target() {
 	const params = useLocalSearchParams<{ id: string }>();
 	const mode = params.id === "new" ? "create" : "edit";
+	const metasDatabase = useMetasDatabase();
 
 	const [name, setName] = useState("");
 	const [target, setTarget] = useState(0);
 
 	useEffect(() => {
 		if (mode === "edit") {
-			metaStorage.getById(params.id).then((data) => {
+			metasDatabase.getById(Number(params.id)).then((data) => {
 				if (data) {
 					setName(data.name);
 					setTarget(data.target);
@@ -27,48 +27,18 @@ export default function Target() {
 		}
 	}, [mode, params.id]);
 
-	function handleNewMeta() {
-		const newMeta: MetaStorage = {
-			id: Date.now().toString(), // Gera um ID único baseado no timestamp atual.
-			name,
-			target,
-		};
-		metaStorage
-			.add(newMeta)
-			.then(() => {
-				router.navigate("/"); // Volta para a tela inicial após salvar a nova meta.
-			})
-			.catch((error) => {
-				console.error("Erro ao salvar a meta:", error);
-			});
+	async function handleSave() {
+		if (mode === "create") {
+			await metasDatabase.create(name, target);
+		} else {
+			await metasDatabase.update(Number(params.id), name, target);
+		}
+		router.navigate("/");
 	}
 
-	function handleEditMeta() {
-		const updatedMeta: MetaStorage = {
-			id: params.id,
-			name,
-			target,
-		};
-		metaStorage
-			.update(updatedMeta)
-			.then(() => {
-				console.log("Update successful:", updatedMeta);
-				router.navigate("/"); // Volta para a tela inicial após salvar a meta.
-			})
-			.catch((error) => {
-				console.error("Erro ao salvar a meta:", error);
-			});
-	}
-
-	function handleDeleteMeta() {
-		metaStorage
-			.remove(params.id)
-			.then(() => {
-				router.navigate("/"); // Volta para a tela inicial após deletar a meta.
-			})
-			.catch((error) => {
-				console.error("Erro ao deletar a meta:", error);
-			});
+	async function handleDeleteMeta() {
+		await metasDatabase.remove(Number(params.id));
+		router.navigate("/");
 	}
 
 	return (
@@ -105,14 +75,8 @@ export default function Target() {
 			/>
 
 			<Button
-				title={`Salvar`}
-				onPress={() => {
-					if (mode === "create") {
-						handleNewMeta();
-					} else {
-						handleEditMeta();
-					}
-				}}
+				title="Salvar"
+				onPress={handleSave}
 			/>
 		</View>
 	);

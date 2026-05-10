@@ -1,14 +1,9 @@
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { AppRoutes } from '@/routes';
-import {
-  Container,
-  Title,
-  Description,
-  Illustration,
-  BackButton,
-  BackButtonLabel,
-} from './styles';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TouchableOpacity } from 'react-native';
+import { styles } from './_styles';
 
 type RouteParams = RouteProp<AppRoutes, 'feedback'>;
 
@@ -18,22 +13,22 @@ export default function Feedback() {
   const { dentroODieta } = route.params;
 
   return (
-    <Container>
-      <Title $dentroODieta={dentroODieta}>
+    <SafeAreaView style={styles.container}>
+      <Text style={dentroODieta ? styles.titleDentro : styles.titleFora}>
         {dentroODieta ? 'Continue assim!' : 'Que pena!'}
-      </Title>
+      </Text>
 
-      <Description>
+      <Text style={styles.description}>
         {dentroODieta
           ? 'Você continua dentro da dieta. Continue se esforçando e mantendo o foco!'
           : 'Você saiu da dieta desta vez, mas continue tentando e não desanime!'}
-      </Description>
+      </Text>
 
-      <Illustration>{dentroODieta ? '🥗' : '🍔'}</Illustration>
+      <Text style={styles.illustration}>{dentroODieta ? '🥗' : '🍔'}</Text>
 
-      <BackButton onPress={() => navigation.navigate('home')}>
-        <BackButtonLabel>Ir para a página inicial</BackButtonLabel>
-      </BackButton>
-    </Container>
+      <TouchableOpacity style={styles.backButton} onPress={() => navigation.navigate('home')}>
+        <Text style={styles.backButtonLabel}>Ir para a página inicial</Text>
+      </TouchableOpacity>
+    </SafeAreaView>
   );
 }
