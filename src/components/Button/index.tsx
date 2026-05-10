@@ -1,16 +1,45 @@
-import React from "react";
-import { TouchableOpacityProps } from "react-native";
-import { ButtonContainer, ButtonTitle } from "./styles";
+import { colors } from "@/theme/colors";
+import { fontFamily } from "@/theme/fontFamily";
+import {
+    ActivityIndicator,
+    Pressable,
+    PressableProps,
+    Text,
+} from "react-native";
 
-interface ButtonProps extends TouchableOpacityProps {
+type Props = PressableProps & {
 	title: string;
-	variant?: "primary" | "secondary" | "danger";
-}
+	isLoading?: boolean;
+};
 
-export function Button({ title, variant = "primary", ...rest }: ButtonProps) {
+export function Button({ title, isLoading = false, ...rest }: Props) {
 	return (
-		<ButtonContainer variant={variant} {...rest}>
-			<ButtonTitle variant={variant}>{title}</ButtonTitle>
-		</ButtonContainer>
+		<Pressable
+			style={{
+				height: 56,
+				width: "100%",
+				borderRadius: 12,
+				backgroundColor: colors.blue[500],
+				alignItems: "center",
+				justifyContent: "center",
+				opacity: isLoading ? 0.7 : 1,
+			}}
+			disabled={isLoading}
+			{...rest}
+		>
+			{isLoading ? (
+				<ActivityIndicator size="small" color={colors.white} />
+			) : (
+				<Text
+					style={{
+						color: colors.white,
+						fontSize: 16,
+						fontFamily: fontFamily.bold,
+					}}
+				>
+					{title}
+				</Text>
+			)}
+		</Pressable>
 	);
 }

@@ -1,18 +1,38 @@
-import React from "react";
-import { TextInputProps } from "react-native";
-import { InputContainer, InputError, InputField, InputLabel } from "./styles";
+import { colors } from "@/theme/colors";
+import { fontFamily } from "@/theme/fontFamily";
+import { Text, TextInput, TextInputProps, View } from "react-native";
 
-interface CustomInputProps extends TextInputProps {
-	label?: string;
-	error?: string;
-}
+type Props = TextInputProps & {
+	label: string;
+};
 
-export function Input({ label, error, ...rest }: CustomInputProps) {
+export function Input({ label, ...rest }: Props) {
 	return (
-		<InputContainer>
-			{label && <InputLabel>{label}</InputLabel>}
-			<InputField placeholderTextColor="#CCCCCC" {...rest} />
-			{error && <InputError>{error}</InputError>}
-		</InputContainer>
+		<View style={{ width: "100%", gap: 10 }}>
+			<Text
+				style={{
+					color: colors.gray[500],
+					fontSize: 12,
+					fontFamily: fontFamily.medium,
+				}}
+			>
+				{label}
+			</Text>
+
+			<TextInput
+				style={{
+					height: 56,
+					width: "100%",
+					borderRadius: 12,
+					borderWidth: 1,
+					borderColor: colors.gray[400],
+					paddingHorizontal: 16,
+					fontFamily: fontFamily.regular,
+					color: colors.black,
+				}}
+				placeholderTextColor={colors.gray[500]}
+				{...rest}
+			/>
+		</View>
 	);
 }
