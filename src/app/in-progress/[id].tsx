@@ -55,19 +55,19 @@ export default function InProgress() {
 		<View style={{ flex: 1, paddingTop: insets.top + 16, paddingBottom: Math.max(insets.bottom, 16), paddingHorizontal: 24, gap: 24 }}>
 			<View
 				style={{
-					display: "flex",
 					flexDirection: "row",
+					alignItems: "center",
 					justifyContent: "space-between",
 				}}
 			>
-				<HeaderTitle>{`Meta: ${meta?.id} - ${meta?.name}`}</HeaderTitle>
+				<Pressable onPress={() => router.navigate("/")}>
+					<MaterialIcons name="arrow-back" size={24} />
+				</Pressable>
 
-				<Pressable>
-					<MaterialIcons
-						name="edit"
-						size={24}
-						onPress={() => router.navigate(`/target/${params.id}`)}
-					/>
+				<HeaderTitle>{meta?.name ?? "Meta"}</HeaderTitle>
+
+				<Pressable onPress={() => router.navigate(`/target/${params.id}`)}>
+					<MaterialIcons name="edit" size={24} />
 				</Pressable>
 			</View>
 
