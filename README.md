@@ -1,21 +1,40 @@
-# Objetivo do projeto
+# Sistema de Metas Financeiras
 
-Manter registro de refeições para acompanhamento de dieta, além de apresentar estatísticas resumidas sobre os registros realizados
+Aplicativo mobile para criação e acompanhamento de metas financeiras, com registro de transações de entrada e saída e resumo do saldo por meta.
 
-# Instruções para rodar o projeto
+## Como rodar o projeto
 
-O projeto foi criado utilizando Node 20.22.0
+### 1. Instalar as dependências
 
-1. Clonar o repositório e instalar dependências
-
-```
-git clone https://github.com/diogobis/sistema-refeicoes.git
-cd sistema-refeicoes
+```bash
 npm install
 ```
 
-2. Rodar o projeto
+### 2. Gerar os arquivos nativos
 
+```bash
+npx expo prebuild
 ```
-expo start
+
+### 3. Instalar as dependências nativas do banco de dados (SQLite)
+
+**iOS:**
+```bash
+cd ios && pod install && cd ..
 ```
+
+**Android:** nenhuma etapa adicional é necessária.
+
+### 4. Rodar o app
+
+**iOS:**
+```bash
+npx expo run:ios
+```
+
+**Android:**
+```bash
+npx expo run:android
+```
+
+> O banco de dados SQLite (`financeiro.db`) é criado e migrado automaticamente na primeira execução do app.
