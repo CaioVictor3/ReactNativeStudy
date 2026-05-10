@@ -4,6 +4,7 @@ import { colors } from "@/theme/colors";
 import { fontFamily } from "@/theme/fontFamily";
 import { LinearGradient } from "expo-linear-gradient";
 import { Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export type HomeHeaderData = {
 	total: string;
@@ -16,10 +17,12 @@ type Props = {
 };
 
 export function HomeHeader({ data }: Props) {
+	const insets = useSafeAreaInsets();
+
 	return (
 		<LinearGradient
 			colors={[colors.blue[500], colors.blue[800]]}
-			style={{ paddingTop: 56, paddingHorizontal: 24, paddingBottom: 24 }}
+			style={{ paddingTop: insets.top + 16, paddingHorizontal: 24, paddingBottom: 24 }}
 		>
 			<Text
 				style={{

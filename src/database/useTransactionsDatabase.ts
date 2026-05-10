@@ -48,6 +48,12 @@ export function useTransactionsDatabase() {
     return result?.accumulated ?? 0;
   }
 
+  async function listAll() {
+    return db.getAllAsync<Transaction>(
+      "SELECT * FROM transactions ORDER BY created_at DESC"
+    );
+  }
+
   async function remove(id: number) {
     await db.runAsync(
       "DELETE FROM transactions WHERE id = $id",
@@ -55,5 +61,5 @@ export function useTransactionsDatabase() {
     );
   }
 
-  return { create, listByMeta, getAccumulatedByMeta, remove };
+  return { create, listAll, listByMeta, getAccumulatedByMeta, remove };
 }

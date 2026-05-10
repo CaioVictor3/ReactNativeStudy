@@ -2,52 +2,57 @@ import { Button } from "@/components/Button";
 import { List } from "@/components/List";
 import { Progress } from "@/components/Progress";
 import { Transaction } from "@/components/Transaction";
-import { metaStorage, MetaStorage } from "@/storage/MetaStorage";
+import { Meta, useMetasDatabase } from "@/database/useMetasDatabase";
 import {
-	TransactionStorage,
-	transactionStorage,
-} from "@/storage/TransactionStorage";
+    Transaction as TransactionData,
+    useTransactionsDatabase,
+} from "@/database/useTransactionsDatabase";
 import { MaterialIcons } from "@expo/vector-icons";
 import { HeaderTitle } from "@react-navigation/elements";
 import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import { Pressable, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function InProgress() {
+	const insets = useSafeAreaInsets();
 	const params = useLocalSearchParams<{ id: string }>();
+	const metaId = Number(params.id);
 
-	const [meta, setMeta] = useState<MetaStorage | null>(null);
-	const [transactions, setTransactions] = useState<TransactionStorage[]>([]);
+	const { getById } = useMetasDatabase();
+	const { listByMeta, getAccumulatedByMeta, remove } =
+		useTransactionsDatabase();
 
-	useEffect(() => {
-		metaStorage.getById(params.id).then((data) => {
-			setMeta(data);
-		});
+	const [meta, setMeta] = useState<Meta | null>(null);
+	const [current, setCurrent] = useState(0);
+	const [transactions, setTransactions] = useState<TransactionData[]>([]);
 
-		transactionStorage.getByMetaId(params.id).then((data) => {
-			setTransactions(data);
-		});
-	}, []);
+	async function loadData() {
+		const metaData = await getById(metaId);
+		setMeta(metaData ?? null);
 
-	function handleRemoveTransaction(id: string) {
-		transactionStorage
-			.remove(id)
-			.then(() => {
-				metaStorage.getById(params.id).then((data) => {
-					setMeta(data);
-				});
+		const accumulated = await getAccumulatedByMeta(metaId);
+		setCurrent(accumulated);
 
-				transactionStorage.getByMetaId(params.id).then((data) => {
-					setTransactions(data);
-				});
-			})
-			.catch((error) => {
-				console.error("Erro ao remover a transação:", error);
-			});
+		const txList = await listByMeta(metaId);
+		setTransactions(txList);
 	}
 
+	useEffect(() => {
+		loadData();
+	}, []);
+
+	async function handleRemoveTransaction(id: number) {
+		await remove(id);
+		loadData();
+	}
+
+	const percentage = meta
+		? Math.round((current / meta.target) * 100)
+		: 0;
+
 	return (
-		<View style={{ flex: 1, padding: 24, gap: 24 }}>
+		<View style={{ flex: 1, paddingTop: insets.top + 16, paddingBottom: Math.max(insets.bottom, 16), paddingHorizontal: 24, gap: 24 }}>
 			<View
 				style={{
 					display: "flex",
@@ -66,18 +71,18 @@ export default function InProgress() {
 				</Pressable>
 			</View>
 
-			{meta && meta.percentage ? (
+			{meta && (
 				<View>
 					<Progress
-						percentage={meta?.percentage}
-						current={meta?.current}
-						target={meta?.target}
+						percentage={percentage}
+						current={current}
+						target={meta.target}
 					/>
 				</View>
-			) : null}
+			)}
 
 			<List
-				title={`Transações da meta`}
+				title="Transações da meta"
 				data={transactions}
 				renderItem={({ item }) => (
 					<Transaction

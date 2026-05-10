@@ -1,17 +1,16 @@
-import { TransactionStorage } from "@/storage/TransactionStorage";
+import { Transaction as TransactionData } from "@/database/useTransactionsDatabase";
 import { colors } from "@/theme/colors";
 import { fontFamily } from "@/theme/fontFamily";
-import { TransactionTypes } from "@/utils/TransactionTypes";
 import { MaterialIcons } from "@expo/vector-icons";
 import { Pressable, Text, View } from "react-native";
 
 type Props = {
-	data: TransactionStorage;
+	data: TransactionData;
 	onRemove?: () => void;
 };
 
 export function Transaction({ data, onRemove }: Props) {
-	const isInput = data.type === TransactionTypes.Input;
+	const isInput = data.type === "input";
 
 	return (
 		<View
